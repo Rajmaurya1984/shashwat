@@ -9,14 +9,15 @@ import './pano.css';
  *        fallback (flat image url, used if the pano is missing), autoRotate (deg/sec)
  */
 const NO_PRELOAD = [];
+const easeSine = (progress) => .5 - Math.cos(Math.PI * THREE.MathUtils.clamp(progress, 0, 1)) / 2;
 
-export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = [], fallback, autoRotate = 2, onReady, onError, onPlace, onView, preload = NO_PRELOAD }) {
+export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = [], fallback, autoRotate = 2, onReady, onError, onPlace, onView, preload = NO_PRELOAD, sceneMotion = false }) {
   const host = useRef(null);
   const [missing, setMissing] = useState(false);
   const viewer = useRef(null);
   const ready = useRef(onReady); ready.current = onReady;
   const failed = useRef(onError); failed.current = onError;
-  const options = useRef({ startYaw, autoRotate }); options.current = { startYaw, autoRotate };
+  const options = useRef({ startYaw, autoRotate, sceneMotion }); options.current = { startYaw, autoRotate, sceneMotion };
   const spots = useRef(hotspots); spots.current = hotspots;
   const place = useRef(onPlace); place.current = onPlace;
   const view = useRef(onView); view.current = onView;
@@ -31,12 +32,20 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
     const mat = new THREE.MeshBasicMaterial({ color: 0x2a0d12 });
     scene.add(new THREE.Mesh(geo, mat));
     const fadeMaterial = new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false });
+    const outgoingZoom = { value: 1 };
+    fadeMaterial.onBeforeCompile = (shader) => {
+      shader.uniforms.outgoingZoom = outgoingZoom;
+      shader.vertexShader = 'uniform float outgoingZoom;\n' + shader.vertexShader.replace(
+        '#include <project_vertex>',
+        '#include <project_vertex>\n gl_Position.xy *= outgoingZoom;'
+      );
+    };
     const fadeMesh = new THREE.Mesh(geo, fadeMaterial);
     fadeMesh.visible = false;
     scene.add(fadeMesh);
-    const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 280;
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const preloaded = new Set();
-    let request = 0, fadeStart = 0;
+    let request = 0, transition = null, doorway = false;
 
     function textureFor(image) {
       const texture = new THREE.Texture(image);
@@ -47,12 +56,18 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
 
     function finishFade() {
       fadeMesh.visible = false;
+      transition = null;
+      outgoingZoom.value = 1;
       fadeMaterial.map?.dispose();
       fadeMaterial.map = null;
     }
 
     viewer.current = async (url, mobileUrl, initialYaw, alternatives) => {
       const pending = ++request;
+      const { sceneMotion: animateScene } = options.current;
+      const travel = animateScene && doorway && !reducedMotion.matches;
+      doorway = false;
+      const duration = reducedMotion.matches ? (animateScene ? 180 : 0) : (animateScene ? 350 : 280);
       const preferred = innerWidth < 820 && mobileUrl ? mobileUrl : url;
       let image = await loadPanorama(preferred);
       if (pending !== request) return;
@@ -74,7 +89,7 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
         fadeMaterial.opacity = 1;
         fadeMaterial.needsUpdate = true;
         fadeMesh.visible = true;
-        fadeStart = performance.now();
+        transition = { start: performance.now(), duration, travel, fov: camera.fov };
       } else {
         if (mat.map !== texture) mat.map?.dispose();
       }
@@ -152,8 +167,15 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
         const horizontalFov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect);
         view.current(-THREE.MathUtils.radToDeg(yaw), THREE.MathUtils.radToDeg(horizontalFov));
       }
-      if (fadeMesh.visible) {
-        fadeMaterial.opacity = 1 - (now - fadeStart) / duration;
+      if (transition) {
+        const elapsed = now - transition.start;
+        if (transition.travel) {
+          const lens = transition.fov * (1 - .2 * easeSine((elapsed - 150) / 900));
+          outgoingZoom.value = Math.tan(THREE.MathUtils.degToRad(transition.fov) / 2) / Math.tan(THREE.MathUtils.degToRad(lens) / 2);
+          fadeMaterial.opacity = 1 - easeSine((elapsed - 950) / 850);
+        } else {
+          fadeMaterial.opacity = 1 - easeSine(elapsed / transition.duration);
+        }
         if (fadeMaterial.opacity <= 0) finishFade();
       }
       renderer.render(scene, camera);
@@ -171,7 +193,10 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
           const caption = document.createElement('span');
           caption.textContent = spot.label;
           button.append(ring, caption);
-          button.onclick = spot.onClick;
+          button.onclick = spot.onClick && ((event) => {
+            doorway = true;
+            spot.onClick(event);
+          });
           button.disabled = !spot.onClick;
           return button;
         }));
@@ -184,7 +209,7 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
         const inFront = v.dot(forward) > 0;
         v.project(camera);
         const button = labels.children[i];
-        const visible = mat.map && inFront && Math.abs(v.x) < 1 && Math.abs(v.y) < 1;
+        const visible = mat.map && (!options.current.sceneMotion || !transition) && inFront && Math.abs(v.x) < 1 && Math.abs(v.y) < 1;
         button.style.visibility = visible ? 'visible' : 'hidden';
         button.style.pointerEvents = visible && !button.disabled ? 'auto' : 'none';
         if (visible) button.style.transform = `translate(${(v.x + 1) / 2 * w}px,${(1 - v.y) / 2 * h}px)`;

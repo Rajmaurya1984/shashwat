@@ -28,6 +28,7 @@ export const project = {
     logo: A('home/logo.png'),
     polyLogo: A('polylogo.png'),
     logoMark: A('home/logo%20_01.png'),
+    mapSymbol: A('brand/shashwat-map-symbol.png'),
     developerLogo: A('brand/logo-raj-realty.svg'),
     texture: A('brand/texture-copper.jpg'),
   },

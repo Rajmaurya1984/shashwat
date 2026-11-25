@@ -213,7 +213,6 @@ function FloorPlan({ tower, floor }) {
           </div>
         </div>
         <div className="fp-kind">{plan.label}</div>
-        {viewOf(floor) && <button type="button" className="fp-360" onPointerEnter={() => warmFloorView(floor)} onFocus={() => warmFloorView(floor)} onClick={(e) => go(`/floor-plans/view-${floor}`, centreOf(e.currentTarget))}>360° view from this floor →</button>}
 
         {has.length > 0 && <>
           <div className="fp-sub">Homes on this floor</div>
@@ -269,15 +268,15 @@ function FloorPlan({ tower, floor }) {
           <figure onClick={(e) => e.stopPropagation()}>
             <img src={sel.plan} alt={`${sel.label} plan`} />
             <figcaption>{tower.name} · {ordinal(floor)} floor · {sel.label}</figcaption>
-            {tower.id === 'a' && sel.id === 'u4' && (
-              <button type="button" className="fp-flat-tour-launch"
-                onPointerEnter={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
-                onFocus={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
-                onClick={() => setTourOpen(true)}>Flat Tour</button>
-            )}
             {sel.id === 'u4' && (
-              <button type="button" className="fp-unit-360" onPointerEnter={() => warmFloorView(unitViewOf(floor).floor)}
-                onClick={(e) => go(`/floor-plans/view-${unitViewOf(floor).floor}?look=u4&from=${tower.id}-${floor}`, centreOf(e.currentTarget))}>360 View</button>
+              <div className="fp-unit-actions">
+                <button type="button" className="fp-unit-360" onPointerEnter={() => warmFloorView(unitViewOf(floor).floor)}
+                  onClick={(e) => go(`/floor-plans/view-${unitViewOf(floor).floor}?look=u4&from=${tower.id}-${floor}`, centreOf(e.currentTarget))}>360 View</button>
+                <button type="button" className="fp-flat-tour-launch"
+                  onPointerEnter={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
+                  onFocus={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
+                  onClick={() => setTourOpen(true)}>Flat Tour</button>
+              </div>
             )}
             <button type="button" className="fp-x" aria-label="Close" onClick={() => setOpen(null)}>✕</button>
           </figure>

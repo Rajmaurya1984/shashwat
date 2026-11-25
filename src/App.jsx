@@ -22,10 +22,10 @@ import NotFound from './pages/NotFound.jsx';
 // 360° pages pull in three.js, so they load only when opened
 function loadable(load) {
   let pending;
-  let Loaded;
+
   function preload() {
     return pending ??= load().then(module => {
-      Loaded = module.default;
+
       return module;
     }).catch(error => {
       pending = undefined;
@@ -34,7 +34,7 @@ function loadable(load) {
   }
   const Lazy = lazy(preload);
   return { Component: function View() {
-    return Loaded ? <Loaded /> : <Lazy />;
+    return <Lazy />;
   }, preload };
 }
 

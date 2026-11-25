@@ -68,7 +68,7 @@ export default function Location() {
         touchPitch: false,
         maxZoom: 18,
         minZoom: 10,
-        attributionControl: { compact: true },
+        attributionControl: false,
         cooperativeGestures: true,
       });
     } catch {
@@ -82,7 +82,7 @@ export default function Location() {
     map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right');
     const sitePin = createPin(site.name, 'site');
     const logo = document.createElement('img');
-    logo.src = project.brand.logoMark;
+    logo.src = project.brand.mapSymbol;
     logo.alt = '';
     sitePin.append(logo);
     sitePin.addEventListener('click', () => {

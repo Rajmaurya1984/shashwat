@@ -301,10 +301,6 @@
   }
 }
 
-body.edeck .chrome .foot,
-body.edeck .chrome .brand {
-  display: none;
-}
 
 /* ---------- whole-deck popup: grows out of the small view ---------- */
 .ed-mini {

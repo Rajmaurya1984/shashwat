@@ -35,19 +35,16 @@ export default function Chrome() {
 
   return (
     <header className="chrome">
+      <button className="brand" onClick={event => go('/', centreOf(event.currentTarget))}
+        aria-label={project.brand.name + ' ' + project.brand.version + ' home'}>
+        <img className="brand-logo" src={project.brand.logo} alt="" />
+      </button>
       <button ref={toggle} className="pill" aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen} onClick={event => go(menuPath, centreOf(event.currentTarget))}>
         {menuOpen ? 'Close' : 'Menu'}
         <svg viewBox="0 0 12 12" aria-hidden="true">
           <path d={menuOpen ? 'M2 2l8 8m0-8-8 8' : 'M1 3h10M1 6h10M4 9h7'} />
         </svg>
-      </button>
-      <button className="pill chrome-home" onClick={event => go('/', centreOf(event.currentTarget))}>
-        Home<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 11V5.5a4 4 0 0 1 8 0V11" /></svg>
-      </button>
-      <button className="brand" onClick={event => go('/', centreOf(event.currentTarget))}
-        aria-label={project.brand.name + ' ' + project.brand.version + ' home'}>
-        <img className="brand-logo" src={project.brand.logo} alt="" />
       </button>
     </header>
   );

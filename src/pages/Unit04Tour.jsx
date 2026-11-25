@@ -18,7 +18,9 @@ const mapPosition = ({ x, y }) => ({
   top: 100 * (y - roomMapCrop.y) / roomMapCrop.height + '%',
 });
 
-/* key plan for the outside view: the floor, Unit 04 lit, and a radar showing which way you look */
+/* 
+make menu btn just downward of the logo and also
+key plan for the outside view: the floor, Unit 04 lit, and a radar showing which way you look */
 const KEY = PLANS.typical, C = PLAN_CROP;
 const U4 = KEY.shapes.u4.split(' ').map((p) => p.split(',').map(Number));
 const U4_AT = U4.reduce((a, [x, y]) => [a[0] + x / U4.length, a[1] + y / U4.length], [0, 0]);
@@ -174,7 +176,7 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
         </div>
       </section>}
       <section className="unit-view" hidden={outside} aria-label={room.name + ' 360° panorama'}>
-        <PanoViewer src={room.src} preload={panoramas} autoRotate={0}
+        <PanoViewer sceneMotion src={room.src} preload={panoramas} autoRotate={0}
           hotspots={hotspots} onView={updateRadar}
           onReady={() => setActive(room)}
           onError={() => setError(room.name + ' could not be loaded.')}

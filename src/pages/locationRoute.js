@@ -17,7 +17,7 @@ export function fitPoints(map, panel, points, maxZoom, duration) {
   bounds.extend(highwayNearProject);
   const viewport = map.getContainer().getBoundingClientRect();
   const overlay = panel.getBoundingClientRect();
-  const bottomPanel = overlay.width >= viewport.width - 1;
+  const bottomPanel = overlay.width >= viewport.width * .8;
   const padding = bottomPanel
     ? { top: 104, right: 50, bottom: Math.ceil(viewport.bottom - overlay.top) + 26, left: 30 }
     : { top: Math.min(104, Math.round(viewport.height * .22)), right: 58, bottom: 50, left: Math.ceil(overlay.right - viewport.left) + 34 };

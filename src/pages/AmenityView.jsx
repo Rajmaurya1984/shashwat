@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { amenityHotspots } from '../data/amenityHotspots.js';
 import { project } from '../data/project.js';
@@ -23,7 +23,7 @@ export default function AmenityView() {
   const { id } = useParams();
   if (id === 'lobby') return <Navigate to="/lobby/360" replace />;
   const amenity = items.find((item) => item.id === id) ?? items[0];
-  return <AmenityScene key={amenity.id} amenity={amenity} />;
+  return <AmenityScene amenity={amenity} />;
 }
 
 function AmenityScene({ amenity }) {
@@ -33,6 +33,11 @@ function AmenityScene({ amenity }) {
   const [target, setTarget] = useState('');
   const [showExport, setShowExport] = useState(false);
   const [storageError, setStorageError] = useState(false);
+  useEffect(() => {
+    setTarget('');
+    setPlacing(false);
+    setShowExport(false);
+  }, [amenity.id]);
   const scenePointers = (pointers[amenity.id] ?? []).filter(({ to }) => scenes.some((scene) => scene.id === to));
   const hotspots = scenePointers.map(({ to, yaw, pitch }) => ({
     label: scenes.find((scene) => scene.id === to).name,
@@ -55,7 +60,7 @@ function AmenityScene({ amenity }) {
   return (
     <div className="page" aria-label={amenity.name} style={{ background: '#12040a' }}>
       {amenity.pano
-        ? <PanoViewer src={amenity.pano} fallback={amenity.image ?? amenity.pano} hotspots={hotspots}
+        ? <PanoViewer sceneMotion src={amenity.pano} fallback={amenity.image ?? amenity.pano} hotspots={hotspots}
             autoRotate={0} onPlace={placing && target ? (position) => saveScene([...scenePointers, { to: target, ...position }]) : undefined} />
         : <div className="pan-still"><Img src={amenity.image} alt={amenity.name} /></div>}
       <div className="view-shade" />
