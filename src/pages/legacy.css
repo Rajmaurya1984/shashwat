@@ -1,0 +1,52 @@
+/* Shree Shashwat 3.0 · Legacy (Raj Realty Group) */
+.lg-page { --lg-gold: #e3c58f; --lg-out: cubic-bezier(.16, 1, .3, 1);
+  position: fixed; inset: 0; overflow: hidden; color: #fff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300;
+  background: #3a2418 center / cover no-repeat; display: grid; grid-template-columns: 47.2% 39% 1fr; }
+.lg-page::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(40, 20, 12, .18) 0, rgba(40, 20, 12, 0) 40%, rgba(0,0,0,0) 86.3%, rgba(255, 240, 230, .09) 86.3%); }
+
+/* left: developer, numbers, story */
+.lg-left { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 3%; }
+.lg-dev { width: clamp(130px, 13vw, 190px); margin-top: 21.5vh; animation: lg-rise 1s var(--lg-out) both .1s; }
+.lg-stats { display: flex; margin-top: 10.5vh; }
+.lg-stats div { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 clamp(10px, 1.7vw, 26px);
+  animation: lg-rise 1s var(--lg-out) both; animation-delay: calc(.25s + var(--k) * .1s); }
+.lg-stats div + div { border-left: 1px solid #f0dcc6; }
+.lg-stats b { color: #f6e7d6; font-weight: 300; letter-spacing: .01em; font-size: clamp(24px, 2.4vw, 36px); line-height: 1.1; }
+.lg-stats span { color: #f6e7d6; margin-top: 4px; max-width: 6em; font-size: clamp(13px, 1.25vw, 18px); line-height: 1.2; }
+.lg-text { position: absolute; top: 81%; width: min(88%, 392px); margin: 0; color: #f4ece6; text-align: center; font-size: clamp(9.5px, .74vw, 10.7px); line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35); animation: lg-rise 1s var(--lg-out) both .7s; }
+
+/* centre: project card */
+.lg-card { position: relative; background: rgba(52, 26, 22, .84); display: flex; flex-direction: column; align-items: center; padding: 20px 15px 0 21px;
+  animation: lg-rise 1.1s var(--lg-out) both .2s; }
+.lg-frame { position: relative; width: 100%; height: 69.3%; flex: none; overflow: hidden; }
+.lg-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06);
+  transition: opacity 1s ease, transform 5s var(--lg-out); }
+.lg-frame img.on { opacity: 1; transform: none; }
+.lg-dots { display: flex; gap: 8px; margin-top: 6px; }
+.lg-dots button { width: 10px; height: 3px; padding: 0; border: 0; background: rgba(227, 197, 143, .35); cursor: pointer; transition: width .5s var(--lg-out), background .3s; }
+.lg-dots button.on, .lg-dots button { background: #c9ab90; } .lg-dots button:not(.on) { opacity: .55; }
+.lg-name { position: absolute; left: 0; right: 0; top: 77.6%; text-align: center; animation: lg-fade .8s ease both; }
+.lg-name h2 { margin: 0; font-weight: 300; font-size: clamp(18px, 1.55vw, 22px); letter-spacing: .02em; color: #d8bea4; }
+.lg-name span { display: block; margin-top: 13px; font-size: clamp(11px, .97vw, 14px); color: #cdb7a6; }
+.lg-mark { position: absolute; left: 50%; top: 93%; translate: -50% -50%; width: 30px; height: 30px; object-fit: contain; color: var(--lg-gold); }
+
+.lg-powered { position: absolute; right: 24px; bottom: 12px; gap: 2px; display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #d9c9b2; }
+
+@keyframes lg-rise { from { opacity: 0; transform: translateY(16px); } }
+@keyframes lg-fade { from { opacity: 0; } }
+
+@media (max-width: 900px) {
+  .lg-page { position: absolute; min-height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
+  .lg-dev { margin-top: 90px; }
+  .lg-stats { flex-wrap: wrap; justify-content: center; row-gap: 18px; margin-top: 40px; }
+  .lg-text { position: static; margin: 30px 0; width: auto; }
+  .lg-card { margin: 0 16px 70px; padding: 16px; }
+  .lg-mark { margin: 16px 0 0; }
+}
+@media (prefers-reduced-motion: reduce) { .lg-page * { animation-duration: .01s !important; transition-duration: .01s !important; } }
+
+/* Powered by POLYCRAYONS, as in the reference */
+.lg-powered { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #d6b37f; letter-spacing: .01em; }
+@media (min-height: 760px) { .lg-name h2 { font-size: clamp(18px, 3.3vh, 30px); } .lg-name span { font-size: clamp(11px, 2.1vh, 18px); } }

@@ -1,0 +1,1120 @@
+/* Shree Shashwat 3.0 · Floor plans */
+.fp-page {
+  --fp-gold: #c9a063;
+  --fp-gold-2: #e3c58f;
+  --fp-cream: #f3e7d6;
+  --fp-mute: rgba(243, 231, 214, .6);
+  --fp-wine: #2a0b11;
+  --fp-out: cubic-bezier(.16, 1, .3, 1);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  color: var(--fp-cream);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  background: #170508;
+}
+
+.fp-page button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.fp-eb {
+  font-size: 11px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+}
+
+/* ---------- twilight view ---------- */
+.fp-render {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 2.6s var(--fp-out);
+}
+
+.fp-view.in .fp-render {
+  transform: none;
+}
+
+.fp-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(23, 5, 8, .78) 0%, rgba(23, 5, 8, .35) 28%, rgba(23, 5, 8, 0) 45%), linear-gradient(0deg, rgba(23, 5, 8, .6), rgba(23, 5, 8, 0) 22%);
+}
+
+.fp-bands {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fp-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.fp-wave rect {
+  fill: #ffd690;
+  fill-opacity: 0;
+  stroke: #ffe2aa;
+  stroke-opacity: 0;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.fp-wave {
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 5px rgba(255, 200, 120, .75));
+  transition: opacity .5s;
+}
+
+.has-hot .fp-wave {
+  opacity: 0;
+}
+
+.fp-glide {
+  transition: y .32s cubic-bezier(.22, 1, .36, 1), height .32s cubic-bezier(.22, 1, .36, 1);
+}
+
+.fp-band {
+  stroke: #ffe2aa;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 6px rgba(255, 205, 130, .9));
+}
+
+.fp-band.off {
+  stroke: rgba(243, 231, 214, .55);
+  filter: none;
+}
+
+.fp-focus {
+  animation: fp-fade .3s ease both;
+}
+
+.fp-head {
+  position: absolute;
+  left: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 300px;
+  pointer-events: none;
+  transition: opacity .5s;
+}
+
+.has-hot .fp-head {
+  opacity: 0;
+}
+
+.fp-head h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(44px, 5vw, 76px);
+  line-height: 1;
+  margin: 14px 0 16px;
+}
+
+.fp-head h1 em {
+  color: var(--fp-gold-2);
+}
+
+.fp-head p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--fp-mute);
+  margin: 0;
+}
+
+/* label pinned beside the tower at the chosen floor; it glides with the band */
+.fp-tag {
+  position: fixed;
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  transform: translate(-100%, -50%);
+  transition: top .32s cubic-bezier(.22, 1, .36, 1), left .32s cubic-bezier(.22, 1, .36, 1);
+  animation: fp-fade .3s ease both;
+}
+
+.fp-tag.r {
+  transform: translate(0, -50%);
+  flex-direction: row-reverse;
+}
+
+.fp-tag i {
+  display: block;
+  width: 46px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 226, 170, .2), #ffe2aa);
+}
+
+.fp-tag.r i {
+  background: linear-gradient(270deg, rgba(255, 226, 170, .2), #ffe2aa);
+}
+
+.fp-tag div {
+  padding: 12px 18px;
+  min-width: 168px;
+  background: rgba(34, 9, 13, .88);
+  border: 1px solid rgba(227, 197, 143, .45);
+  border-radius: var(--button-radius);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .35);
+}
+
+.fp-tag span {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+}
+
+.fp-tag b {
+  display: block;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.05;
+  margin-top: 4px;
+}
+
+.fp-tag b small {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--fp-mute);
+  margin-left: 6px;
+}
+
+.fp-tag em {
+  display: block;
+  font-style: normal;
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--fp-mute);
+  margin-top: 4px;
+}
+
+.fp-probe {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 9;
+  padding: 8px 14px;
+  background: #000;
+  color: #ffe2aa;
+  font: 12px monospace;
+  border-radius: 6px;
+}
+
+/* ---------- plan ---------- */
+.fp-plan {
+  background: radial-gradient(110% 90% at 65% 50%, #4a1820 0%, var(--fp-wine) 60%, #170508 100%);
+  display: grid;
+  grid-template-columns: minmax(240px, 20vw) minmax(0, 1fr) min(22vw, 300px);
+  gap: 0 2.4vw;
+  padding: 110px 48px 48px;
+  box-sizing: border-box;
+}
+
+.fp-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: none;
+  animation: fp-rise .9s var(--fp-out) both;
+}
+
+.fp-back {
+  align-self: flex-start;
+  font-size: 10.5px !important;
+  letter-spacing: .3em !important;
+  text-transform: uppercase;
+  color: var(--fp-gold-2) !important;
+  border-bottom: 1px solid rgba(227, 197, 143, .35) !important;
+  padding-bottom: 5px !important;
+  margin-bottom: 30px;
+}
+
+.fp-floor {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.fp-floor h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(54px, 5.2vw, 86px);
+  line-height: .95;
+  margin: 0;
+}
+
+.fp-floor h1 small {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--fp-mute);
+  margin-left: 8px;
+}
+
+.fp-step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-step button {
+  width: 30px;
+  height: 26px;
+  border: 1px solid rgba(227, 197, 143, .4) !important;
+  border-radius: 6px;
+  font-size: 9px !important;
+  color: var(--fp-gold-2) !important;
+  transition: background .3s;
+}
+
+.fp-step button:hover {
+  background: rgba(227, 197, 143, .16) !important;
+}
+
+.fp-kind {
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--fp-mute);
+}
+
+.fp-sub {
+  margin-top: 34px;
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+}
+
+.fp-units {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  border-left: 1px solid rgba(201, 160, 99, .35);
+}
+
+.fp-units button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 0 7px 18px;
+  font-size: 15px !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase;
+  position: relative;
+  text-align: left;
+  transition: color .35s, transform .5s var(--fp-out);
+}
+
+.fp-units button small {
+  font-size: 9px;
+  letter-spacing: .26em;
+  color: var(--fp-gold);
+}
+
+.fp-units button::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 20%;
+  bottom: 20%;
+  width: 2px;
+  background: var(--fp-gold-2);
+  transform: scaleY(0);
+  transition: transform .4s var(--fp-out);
+}
+
+.fp-units button.on {
+  color: var(--fp-gold-2);
+  transform: translateX(6px);
+}
+
+.fp-units button.on::before {
+  transform: scaleY(1);
+}
+
+.fp-units li:not(:has(.jodi))+li:has(.jodi) {
+  margin-top: 10px;
+}
+
+/* gap before the jodi flats */
+.fp-fine {
+  margin-top: auto;
+  padding-top: 24px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: rgba(243, 231, 214, .42);
+}
+
+.fp-sheet {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  container-type: size;
+  animation: fp-sheet 1.1s var(--fp-out) both;
+}
+
+/* the frame is exactly the plan's shape (2000 × 1414) so the unit outlines sit on the drawing */
+.fp-paper {
+  position: relative;
+  width: min(100cqw, 100cqh * var(--fp-ratio));
+  height: auto;
+  overflow: hidden;
+}
+
+/* the plan image is placed so only the cropped drawing shows; the outlines share the same box */
+.fp-paper img {
+  position: absolute;
+  display: block;
+  max-width: none;
+}
+
+/* hide the drawing's own floor-list title in the top-left corner (the floor is shown in the side panel) */
+/* hide the drawing's title block on the image only; a clip-path on the paper stopped the unit highlight from painting */
+.fp-paper img {
+  clip-path: polygon(42.9% 0, 100% 0, 100% 100%, 0 100%, 0 10.08%, 42.9% 10.08%);
+}
+
+.fp-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fp-unit {
+  fill: rgba(201, 160, 99, 0);
+  stroke: rgba(201, 160, 99, 0);
+  stroke-width: 2.2px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: miter;
+  cursor: pointer;
+  transition: fill .4s, stroke .4s, filter .4s;
+}
+
+.fp-unit.on {
+  fill: rgba(214, 168, 96, .14);
+  stroke: #e3c58f;
+  filter: drop-shadow(0 0 6px rgba(201, 160, 99, .6));
+}
+
+.fp-dim {
+  fill: rgba(42, 11, 17, .55);
+  pointer-events: none;
+  animation: fp-fade .35s ease both;
+}
+
+@keyframes fp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes fp-sheet {
+  from {
+    opacity: 0;
+    transform: scale(.97);
+  }
+}
+
+/* hovered unit preview */
+.fp-peek {
+  position: relative;
+  align-self: center;
+  z-index: 4;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px 14px;
+  pointer-events: none;
+  background: rgba(34, 9, 13, .9);
+  border: 1px solid rgba(227, 197, 143, .4);
+  border-radius: 18px 18px 6px 6px;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .35s, transform .5s var(--fp-out);
+}
+
+.fp-peek.on {
+  opacity: 1;
+  transform: none;
+}
+
+.fp-peek b {
+  display: block;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  margin: 4px 0 10px;
+}
+
+.fp-peek img {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.fp-peek span {
+  display: block;
+  margin-top: 10px;
+  font-size: 9.5px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+}
+
+/* opened unit */
+.fp-box {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 4vh 4vw;
+  background: rgba(14, 3, 6, .82);
+  backdrop-filter: blur(8px);
+  animation: fp-fade .4s ease both;
+}
+
+.fp-box figure {
+  position: relative;
+  margin: 0;
+  max-width: 100%;
+  max-height: 100%;
+  animation: fp-sheet .6s var(--fp-out) both;
+}
+
+.fp-box img {
+  display: block;
+  max-width: 88vw;
+  max-height: 82vh;
+  border-radius: 8px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .6);
+}
+
+.fp-box figcaption {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+}
+
+.fp-x {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--fp-gold-2) !important;
+  color: #2a0b11 !important;
+  font-size: 14px !important;
+}
+
+@keyframes fp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1060px) and (min-width: 901px) {
+  .fp-plan {
+    grid-template-columns: minmax(220px, 24vw) minmax(0, 1fr);
+  }
+
+  .fp-peek {
+    position: fixed;
+    right: 28px;
+    bottom: 60px;
+    width: 230px;
+    align-self: auto;
+  }
+
+  .fp-peek.up {
+    bottom: auto;
+    top: 96px;
+  }
+
+  /* stay clear of the bottom homes while they are hovered */
+}
+
+@media (max-width: 900px) {
+  .fp-head {
+    left: 22px;
+    right: 22px;
+    top: auto;
+    bottom: 40px;
+    transform: none;
+  }
+
+  .fp-plan {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    padding: 80px 16px 16px;
+    overflow-y: auto;
+  }
+
+  .fp-units {
+    display: flex;
+    flex-wrap: wrap;
+    border: 0;
+  }
+
+  .fp-units button {
+    padding: 6px 12px;
+  }
+
+  .fp-peek {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-page * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- floor picker: pinned card with plan / 360 choice ---------- */
+.fp-tag.pin {
+  pointer-events: auto;
+}
+
+.fp-choose {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(227, 197, 143, .25);
+}
+
+.fp-choose em {
+  margin: 0 0 4px;
+}
+
+.fp-page .fp-choose button {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 7px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(227, 197, 143, .25);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+  transition: color .3s;
+}
+
+.fp-page .fp-choose button span {
+  transition: transform .4s var(--fp-out);
+}
+
+.fp-page .fp-choose button:hover,
+.fp-choose button:focus-visible {
+  color: #fff3dc;
+  outline: none;
+}
+
+.fp-page .fp-choose button:hover span {
+  transform: translateX(4px);
+}
+
+.fp-page .fp-360 {
+  display: block;
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10.5px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--fp-gold-2);
+}
+
+.fp-360:hover {
+  color: #fff3dc;
+}
+
+/* ---------- 360 view from a floor ---------- */
+.fp-360v {
+  position: fixed;
+  inset: 0;
+  background: #12040a;
+}
+
+.fp-360bar {
+  position: absolute;
+  z-index: 3;
+  top: 36px;
+  left: var(--pad);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.fp-page .fp-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 0 18px;
+  border: 1px solid rgba(227, 197, 143, .5);
+  border-radius: var(--button-radius);
+  background: rgba(34, 9, 13, .78);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font: 400 11px 'Jost', sans-serif;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: #f3e7d6;
+  transition: border-color .3s, background .3s;
+}
+
+.fp-page .fp-pill:hover {
+  border-color: #e3c58f;
+  background: rgba(74, 27, 35, .9);
+}
+
+.fp-page .fp-pill span {
+  color: #e3c58f;
+  transition: transform .4s;
+}
+
+.fp-pill span.up {
+  transform: rotate(180deg);
+}
+
+.fp-drop {
+  position: relative;
+}
+
+.fp-drop ul {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  min-width: 100%;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid rgba(227, 197, 143, .4);
+  border-radius: 6px;
+  background: rgba(34, 9, 13, .92);
+  backdrop-filter: blur(10px);
+  animation: fp-fade .25s ease both;
+}
+
+.fp-page .fp-drop li button {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font: 400 11px 'Jost', sans-serif;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #f3e7d6;
+  white-space: nowrap;
+}
+
+.fp-page .fp-drop li button small {
+  font-size: 8.5px;
+  letter-spacing: .26em;
+  color: rgba(243, 231, 214, .5);
+  margin-top: 2px;
+}
+
+.fp-page .fp-drop li button:hover,
+.fp-drop li button.on {
+  background: rgba(201, 160, 99, .2);
+  color: #ffe2aa;
+}
+
+.fp-light {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 34px;
+  translate: -50% 0;
+  display: flex;
+  padding: 4px;
+  border: 1px solid rgba(227, 197, 143, .45);
+  border-radius: 20px;
+  background: rgba(34, 9, 13, .78);
+  backdrop-filter: blur(8px);
+}
+
+.fp-page .fp-light button {
+  padding: 7px 18px;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  cursor: pointer;
+  font: 400 10.5px 'Jost', sans-serif;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: rgba(243, 231, 214, .7);
+  transition: background .35s, color .35s;
+}
+
+.fp-page .fp-light button.on {
+  background: #c9a063;
+  color: #2a0b11;
+}
+
+.fp-360load {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: rgba(243, 231, 214, .7);
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .fp-360bar {
+    top: 16px;
+    left: var(--pad);
+  }
+
+  .fp-light {
+    bottom: 20px;
+  }
+}
+
+.fp-flat-tour-launch {
+  display: block;
+  margin: .75rem auto 0;
+  padding: .6rem 1rem;
+  border: 1px solid var(--fp-gold-2);
+  border-radius: 999px;
+  background: #2a0b11;
+  color: var(--fp-gold-2);
+  font: inherit;
+}
+
+/* 360view on Unit 04's plan: bottom-left corner of the popup */
+.fp-box figure .fp-unit-360 {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 34px;
+  padding: 0 15px 0 4px;
+  cursor: pointer;
+  border: 1px solid rgba(227, 197, 143, .5);
+  border-radius: 17px;
+  background: rgba(34, 9, 13, .74);
+  backdrop-filter: blur(8px);
+  font: 400 10px 'Jost', sans-serif;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: #f3e7d6;
+  transition: border-color .3s, background .3s, color .3s;
+}
+
+.fp-box figure .fp-unit-360 svg {
+  display: none;
+}
+
+.fp-box figure .fp-unit-360::before {
+  content: '360°';
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #c9a063;
+  color: #2a0b11;
+  font: 600 8px 'Jost', sans-serif;
+  letter-spacing: 0;
+  transition: transform .8s cubic-bezier(.16, 1, .3, 1);
+}
+
+.fp-box figure .fp-unit-360:hover {
+  border-color: #e3c58f;
+  background: rgba(74, 27, 35, .88);
+  color: #ffe2aa;
+}
+
+.fp-box figure .fp-unit-360:hover::before {
+  transform: rotate(-360deg);
+}
+
+.fp-box figure .fp-unit-360:focus-visible {
+  outline: 2px solid #e3c58f;
+  outline-offset: 3px;
+}
+
+.fp-box figure .fp-unit-360 {
+  z-index: 2;
+  left: 20px;
+  bottom: 66px;
+}
+
+/* ---------- details card for a chosen home (reference layout) ---------- */
+
+@keyframes fp-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.fp-page .fp-card-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(227, 197, 143, .55);
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+  font: 500 9.5px 'Jost', sans-serif;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: #e3c58f;
+  transition: background .3s, color .3s, border-color .3s;
+}
+
+.fp-page .fp-card-btn span {
+  transition: transform .35s;
+}
+
+.fp-page .fp-card-btn:hover {
+  border-color: #e3c58f;
+  background: rgba(201, 160, 99, .12);
+  color: #ffe2aa;
+}
+
+.fp-page .fp-card-btn:hover span {
+  transform: translateX(3px);
+}
+
+.fp-page .fp-card-btn.solid {
+  background: #c9a063;
+  border-color: #c9a063;
+  color: #2a0b11;
+}
+
+.fp-page .fp-card-btn.solid:hover {
+  background: #ddb97e;
+}
+
+/* ---------- 360 view: floor-plan panel, look from a home ---------- */
+.fp-look {
+  position: absolute;
+  z-index: 3;
+  right: 36px;
+  bottom: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: clamp(13rem, 19vw, 21rem);
+  padding: 11px;
+  border: 1px solid rgba(227, 197, 143, .3);
+  background: rgba(34, 9, 13, .82);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .85);
+  color: #f3e7d6;
+}
+
+.fp-look-map {
+  position: relative;
+  overflow: hidden;
+  background: #f6f1e8;
+}
+
+.fp-look-map img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  clip-path: polygon(42.9% 0, 100% 0, 100% 100%, 0 100%, 0 10.08%, 42.9% 10.08%);
+}
+
+.fp-look-map svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fp-look-map polygon {
+  fill: rgba(201, 160, 99, 0);
+  stroke: rgba(176, 130, 63, 0);
+  stroke-width: 5;
+  cursor: pointer;
+  transition: fill .3s, stroke .3s;
+}
+
+.fp-look-map polygon:hover {
+  fill: rgba(201, 160, 99, .18);
+  stroke: rgba(176, 130, 63, .6);
+}
+
+.fp-look-map polygon.on {
+  fill: rgba(201, 160, 99, .4);
+  stroke: #9c6f2e;
+}
+
+.fp-look-radar {
+  position: absolute;
+  width: 34%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  display: grid;
+}
+
+.fp-look-radar i {
+  --fov: 90deg;
+  display: block;
+  border-radius: 50%;
+  transition: transform .1s linear;
+  background: conic-gradient(from calc(var(--fov) / -2), rgba(182, 117, 35, .75) 0deg, rgba(217, 166, 85, .55) var(--fov), transparent var(--fov));
+  mask-image: radial-gradient(#000 30%, transparent 70%);
+}
+
+.fp-look-radar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #7a4d17;
+  box-shadow: 0 0 0 2px #fff5df;
+}
+
+.fp-look p {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.6;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(243, 231, 214, .7);
+}
+
+.fp-look .fp-card-btn {
+  margin-top: 0;
+  justify-content: center;
+}
+
+@media (max-width: 700px) {
+  .fp-look {
+    right: 12px;
+    bottom: 76px;
+    width: 11.5rem;
+  }
+
+}
+
+/* 360 View: the only extra button, bottom-left of Unit 04's modal */
+body .fp-box figure .fp-unit-360 {
+  position: absolute;
+  z-index: 2;
+  left: 24px;
+  bottom: 106px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid rgba(227, 197, 143, .55);
+  border-radius: 8px;
+  background: rgba(34, 9, 13, .85);
+  cursor: pointer;
+  box-shadow: none;
+  font: 500 10.5px 'Jost', sans-serif;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: #f3e7d6;
+}
+
+body .fp-box figure .fp-unit-360::before {
+  content: none;
+}
+
+body .fp-box figure .fp-unit-360::after {
+  content: '→';
+  color: #e3c58f;
+  letter-spacing: 0;
+  transition: transform .35s;
+}
+
+body .fp-box figure .fp-unit-360:hover {
+  border-color: #e3c58f;
+  background: rgba(74, 27, 35, .92);
+  color: #ffe2aa;
+}
+
+body .fp-box figure .fp-unit-360:hover::after {
+  transform: translateX(3px);
+}
+
+.fp-look {
+  width: clamp(11rem, 15vw, 16rem);
+  padding: 8px;
+  gap: 8px;
+}
+
+.fp-look-map polygon.on {
+  fill: rgba(201, 160, 99, .4);
+  stroke: #9c6f2e;
+  cursor: default;
+}

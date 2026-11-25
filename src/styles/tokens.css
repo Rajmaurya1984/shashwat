@@ -1,0 +1,25 @@
+/* Brand tokens — confirm the exact hex values with the brochure designer */
+:root {
+  --plum: #22090d;
+  --plum-2: #33121a;
+  --plum-deep: #120406;
+  --copper: #9a5a34;
+  --gold: #c9a063;
+  --gold-2: #e3c58f;
+  --cream: #f3e7d6;
+  --mute: rgba(243, 231, 214, 0.62);
+  --line: rgba(201, 160, 99, 0.35);
+  --raj-red: #c8323b;
+
+  /* Stand-in fonts (index.html). Replace with licensed brand fonts via @font-face. */
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Jost', system-ui, sans-serif;
+  --script: 'Pinyon Script', cursive;
+
+  --ease: cubic-bezier(0.65, 0, 0.25, 1);
+  --out: cubic-bezier(0.16, 1, 0.3, 1);
+  --pad: 48px;
+  --tint: #3a1218;           /* Living Logo sky tint, changes per chapter */
+}
+@media (max-width: 820px) { :root { --pad: 22px; } }
+:root { --button-radius: 6px; }

@@ -1,0 +1,71 @@
+/* =========================================================================
+
+/* ---------- atmosphere ---------- */
+
+/* ---------- the tower at dusk (Tower Lights canvas) ---------- */
+.mn-tower > :is(img, .tl-canvas) { object-fit: fill; position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s ease .15s; }
+.mn-page.in .mn-tower > :is(img, .tl-canvas) { object-fit: fill; opacity: 1; }
+
+/* ---------- section list ---------- */
+
+/* ---------- caption: what the lit part of the building is ---------- */
+
+/* ---------- footer ---------- */
+
+/* Floor Scan: gold floor outlines that sweep up the towers (floorScan.js) */
+.fs-floor { fill: var(--mn-glow); fill-opacity: 0; stroke: var(--mn-glow); stroke-opacity: 0; stroke-width: 1.2px; vector-effect: non-scaling-stroke; stroke-linejoin: round;
+  transition: fill-opacity .5s var(--mn-out), stroke-opacity .5s var(--mn-out); }
+.fs-floor.lit { fill-opacity: .07; stroke-opacity: .8; }
+.fs-halo { fill: #ffc874; opacity: 0; }
+
+/* the tower settles into place as the menu opens */
+
+/* keep the small section label clear of the title as it slides right */
+
+/* caption sits over lit windows: give it a soft dark bed so it stays readable */
+
+/* ---------- phones / tablets ---------- */
+@media (prefers-reduced-motion: reduce) { .mn-page *, .mn-page *::before { animation-duration: .01s !important; transition-duration: .01s !important; transition-delay: 0s !important; } }
+
+/* =========================================================================
+   Trefoil Portal (route transition, used by trefoilPortal.js)
+   ========================================================================= */
+@property --tp-r { syntax: '<length>'; inherits: true; initial-value: 0px; }
+:root { --tp-dur: 1450ms; --tp-x: 50vw; --tp-y: 50vh; --tp-rmax: 150vmax; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--tp-dur); animation-timing-function: cubic-bezier(.65, 0, .35, 1); mix-blend-mode: normal; transform-origin: var(--tp-x) var(--tp-y); }
+::view-transition-old(root) { animation-name: tp-fall; }
+::view-transition-new(root) {
+  animation-name: tp-grow;
+  /* three loops, each centred 0.55 × r from the click point at -90°, 30°, 150° */
+  -webkit-mask-image:
+    radial-gradient(circle var(--tp-r) at var(--tp-x) calc(var(--tp-y) - var(--tp-r) * .55), #000 99.2%, transparent 100%),
+    radial-gradient(circle var(--tp-r) at calc(var(--tp-x) + var(--tp-r) * .476) calc(var(--tp-y) + var(--tp-r) * .275), #000 99.2%, transparent 100%),
+    radial-gradient(circle var(--tp-r) at calc(var(--tp-x) - var(--tp-r) * .476) calc(var(--tp-y) + var(--tp-r) * .275), #000 99.2%, transparent 100%);
+  mask-image:
+    radial-gradient(circle var(--tp-r) at var(--tp-x) calc(var(--tp-y) - var(--tp-r) * .55), #000 99.2%, transparent 100%),
+    radial-gradient(circle var(--tp-r) at calc(var(--tp-x) + var(--tp-r) * .476) calc(var(--tp-y) + var(--tp-r) * .275), #000 99.2%, transparent 100%),
+    radial-gradient(circle var(--tp-r) at calc(var(--tp-x) - var(--tp-r) * .476) calc(var(--tp-y) + var(--tp-r) * .275), #000 99.2%, transparent 100%);
+}
+@keyframes tp-grow { from { --tp-r: 0px; transform: scale(1.14); } to { --tp-r: var(--tp-rmax); transform: none; } }
+@keyframes tp-fall { from { transform: none; filter: none; } to { transform: scale(.92); filter: brightness(.4); } }
+.tp-rings {
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: 2147483647; background: #f1d9a6; view-transition-name: tp-rings;
+}
+::view-transition-group(tp-rings) { animation: none; z-index: 10; }
+::view-transition-old(tp-rings) { display: none; }
+::view-transition-new(tp-rings) {
+  animation: tp-trace var(--tp-dur) cubic-bezier(.65, 0, .35, 1) both;
+  mask-image:
+    radial-gradient(circle var(--tp-r) at var(--tp-x) calc(var(--tp-y) - var(--tp-r) * .55), transparent calc(100% - 2px), #000 calc(100% - 1px), transparent 100%),
+    radial-gradient(circle var(--tp-r) at calc(var(--tp-x) + var(--tp-r) * .476) calc(var(--tp-y) + var(--tp-r) * .275), transparent calc(100% - 2px), #000 calc(100% - 1px), transparent 100%),
+    radial-gradient(circle var(--tp-r) at calc(var(--tp-x) - var(--tp-r) * .476) calc(var(--tp-y) + var(--tp-r) * .275), transparent calc(100% - 2px), #000 calc(100% - 1px), transparent 100%);
+}
+@keyframes tp-trace {
+  from { --tp-r: 0px; opacity: 1; }
+  to { --tp-r: var(--tp-rmax); opacity: 1; }
+}
+::view-transition-group(tp-rings) { animation: tp-fade var(--tp-dur) linear both; }
+@keyframes tp-fade { 0%, 35% { opacity: 1; } 62%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { ::view-transition-old(root), ::view-transition-new(root) { animation: none; } }
+
