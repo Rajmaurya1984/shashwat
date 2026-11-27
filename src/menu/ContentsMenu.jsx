@@ -112,9 +112,11 @@ export default function ContentsMenu() {
         <canvas className="ct-dots" ref={dotsRef} />
         <div className="ct-window" style={{ WebkitMaskImage: mask, maskImage: mask }}>
           <div className="ct-tower" ref={towerRef}><img src={tower.src} alt="" /></div>
+          {/* the section's photograph, seen through the three loops of the mark */}
+          {sections.map((s) => <img key={s.id} className={'ct-photo' + (hot === s.id ? ' on' : '')} src={s.preview} alt="" />)}
         </div>
         <svg className="ct-rims" viewBox="0 0 100 100">
-          {TREFOIL.map(([x, y, r], k) => <circle key={k} cx={x} cy={y} r={r} style={{ '--k': k }} />)}
+          {TREFOIL.map(([x, y, r, a], k) => <circle key={k} cx={x} cy={y} r={r} pathLength="360" transform={`rotate(${a} ${x} ${y})`} style={{ '--k': k }} />)}
         </svg>
         <figcaption className="ct-cap" key={hot ?? 'rest'}>
           <span>{hs ? hs.where : 'Shree Shashwat 3.0'}</span>

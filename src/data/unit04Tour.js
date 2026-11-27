@@ -1,4 +1,4 @@
-import { unit04RoomSrc } from '../pages/floorData.js';
+import { UNIT_04_MAP_VIEWBOX, UNIT_04_ROOMS, unit04RoomSrc } from '../pages/floorData.js';
 
 export function normalizeBearing(degrees) {
   return ((degrees % 360) + 360) % 360;
@@ -39,7 +39,20 @@ export const unit04Pointers = Object.fromEntries(Object.entries(roomLinks).map((
   links.map(([to, yaw, pitch]) => ({ to: unit04RoomSrc(to), yaw, pitch })),
 ]));
 
-export const unit04Radar = {
-  [unit04RoomSrc('Kitchen')]: { x: 55, y: 54, offset: 265.084089883547 },
-  [unit04RoomSrc('Living Room')]: { x: 72, y: 53, offset: 1.8374064196282234 },
+const calibratedOffsets = {
+  [unit04RoomSrc('Kitchen')]: 265.084089883547,
+  [unit04RoomSrc('Living Room')]: 1.8374064196282234,
 };
+
+// Estimate uncalibrated headings from the first doorway and its destination on the plan.
+const roomsBySource = new Map(UNIT_04_ROOMS.map((room) => [room.src, room]));
+const [, , mapWidth, mapHeight] = UNIT_04_MAP_VIEWBOX;
+export const unit04Radar = Object.fromEntries(UNIT_04_ROOMS.map(({ src, cameraPosition }) => {
+  const { left, top } = cameraPosition;
+  const doorway = unit04Pointers[src]?.[0];
+  const destination = roomsBySource.get(doorway?.to)?.cameraPosition;
+  const estimatedOffset = destination
+    ? normalizeBearing(Math.atan2((destination.left - left) * mapWidth, (top - destination.top) * mapHeight) * 180 / Math.PI + doorway.yaw)
+    : 0;
+  return [src, { ...cameraPosition, offset: calibratedOffsets[src] ?? estimatedOffset }];
+}));

@@ -1,22 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import PanoViewer from '../components/panorama/PanoViewer.jsx';
-import { UNIT_04_ROOMS, PLANS, PLAN_FRAME, PLAN_CROP, LIGHTS, UNIT_VIEW_YAW, currentFloorLight, ordinal, unitViewOf, viewSrc } from './floorData.js';
+import { UNIT_04_MAP_VIEWBOX, UNIT_04_ROOMS, PLANS, PLAN_FRAME, PLAN_CROP, LIGHTS, UNIT_VIEW_YAW, currentFloorLight, ordinal, unitViewOf, viewSrc } from './floorData.js';
 import { normalizeBearing, unit04Pointers, unit04Radar } from '../data/unit04Tour.js';
 import './unit04-tour.css';
 
 const rooms = UNIT_04_ROOMS;
-// The cropped drawing uses percentages of the original image so saved placements stay aligned.
-const roomMapCrop = { x: 12, y: 16, width: 75, height: 63 };
-const roomMapAspect = (3000 * roomMapCrop.width) / (2121 * roomMapCrop.height);
-const roomMapImage = {
-  width: 10000 / roomMapCrop.width + '%',
-  left: -100 * roomMapCrop.x / roomMapCrop.width + '%',
-  top: -100 * roomMapCrop.y / roomMapCrop.height + '%',
-};
-const mapPosition = ({ x, y }) => ({
-  left: 100 * (x - roomMapCrop.x) / roomMapCrop.width + '%',
-  top: 100 * (y - roomMapCrop.y) / roomMapCrop.height + '%',
-});
+const [, , mapWidth, mapHeight] = UNIT_04_MAP_VIEWBOX;
 
 /* 
 make menu btn just downward of the logo and also
@@ -41,14 +30,18 @@ function readDraft() {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey));
     const radar = Object.fromEntries(Object.entries(saved?.radar ?? {}).flatMap(([src, placement]) => {
-      if (!placement || !Number.isFinite(placement.x) || !Number.isFinite(placement.y)) return [];
+      if (!placement) return [];
+      // Older drafts stored percentages of the original, uncropped image.
+      const left = saved.version === 3 ? placement.left : (placement.x - 12) / .75;
+      const top = saved.version === 3 ? placement.top : (placement.y - 16) / .63;
+      if (!Number.isFinite(left) || !Number.isFinite(top)) return [];
       const offset = Number.isFinite(placement.offset) ? normalizeBearing(placement.offset) : undefined;
-      return [[src, { ...placement, offset }]];
+      return [[src, { left, top, offset }]];
     }));
     const pointers = Object.fromEntries(Object.entries(saved?.pointers ?? {}).flatMap(([src, links]) => {
       if (!Array.isArray(links)) return [];
       const validLinks = links.filter((link) => link && Number.isFinite(link.yaw) && Number.isFinite(link.pitch));
-      if (saved.version === 2) return [[src, validLinks]];
+      if (saved.version >= 2) return [[src, validLinks]];
       const missingLinks = (unit04Pointers[src] ?? []).filter(({ to }) => !validLinks.some((link) => link.to === to));
       return [[src, [...validLinks, ...missingLinks]]];
     }));
@@ -79,9 +72,8 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
   function outRadar(heading, fov) {
     if (!outCone.current) return;
     const bearing = MAP_FACING + heading + UNIT_VIEW_YAW.u4;   // heading is -yaw; at the start yaw it reads -UNIT_VIEW_YAW
-    outCone.current.style.transform = 'rotate(' + bearing + 'deg)';
+    outCone.current.style.setProperty('--radar-bearing', bearing + 'deg');
     outCone.current.style.setProperty('--radar-fov', fov + 'deg');
-    outCone.current.style.setProperty('--radar-start', -fov / 2 + 'deg');
   }
 
   useEffect(() => {
@@ -91,9 +83,13 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
   }, []);
 
   const pointers = { ...unit04Pointers, ...draft.pointers };
-  const radar = { ...unit04Radar, ...draft.radar };
+  const radar = Object.fromEntries(rooms.map(({ src }) => {
+    const saved = draft.radar[src];
+    const fallback = unit04Radar[src];
+    return [src, saved ? { ...saved, offset: saved.offset ?? fallback.offset } : fallback];
+  }));
   const currentPointers = pointers[active?.src] ?? [];
-  const position = active && (radar[active.src] ?? active);
+  const position = active && radar[active.src];
   const isReady = active === room && !error;
   const hotspots = active === room && !error
     ? currentPointers.flatMap(({ to, yaw, pitch }) => {
@@ -112,7 +108,7 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
   function save(next) {
     setDraft(next);
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ version: 2, ...next }));
+      localStorage.setItem(storageKey, JSON.stringify({ version: 3, ...next }));
       setStorageError(false);
     } catch {
       setStorageError(true);
@@ -128,8 +124,8 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
     const rect = event.currentTarget.getBoundingClientRect();
     save({ ...draft, radar: { ...draft.radar, [room.src]: {
       offset: position.offset,
-      x: roomMapCrop.x + (event.clientX - rect.left) / rect.width * roomMapCrop.width,
-      y: roomMapCrop.y + (event.clientY - rect.top) / rect.height * roomMapCrop.height,
+      left: (event.clientX - rect.left) / rect.width * 100,
+      top: (event.clientY - rect.top) / rect.height * 100,
     } } });
   }
 
@@ -138,7 +134,7 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
     const heading = Number(alignment);
     if (!Number.isFinite(heading) || heading < 0 || heading > 360) return;
     save({ ...draft, radar: { ...draft.radar, [room.src]: {
-      x: position.x, y: position.y, offset: normalizeBearing(heading - cameraHeading.current),
+      left: position.left, top: position.top, offset: normalizeBearing(heading - cameraHeading.current),
     } } });
     setAlignment('');
   }
@@ -148,7 +144,6 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
     if (!cone.current) return;
     const bearing = normalizeBearing(cameraHeading.current + (position?.offset ?? 0));
     cone.current.style.setProperty('--radar-bearing', bearing + 'deg');
-    cone.current.style.setProperty('--radar-start', -fov / 2 + 'deg');
     cone.current.style.setProperty('--radar-fov', fov + 'deg');
   }
 
@@ -176,7 +171,7 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
         </div>
       </section>}
       <section className="unit-view" hidden={outside} aria-label={room.name + ' 360° panorama'}>
-        <PanoViewer sceneMotion src={room.src} preload={panoramas} autoRotate={0}
+        <PanoViewer sceneMotion startFov={95} src={room.src} preload={panoramas} autoRotate={0}
           hotspots={hotspots} onView={updateRadar}
           onReady={() => setActive(room)}
           onError={() => setError(room.name + ' could not be loaded.')}
@@ -202,17 +197,19 @@ export default function Unit04Tour({ plan, floor = 20, startOutside = false, onC
         </nav>
       </div>
       <aside hidden={outside} className="unit-map-panel unit-room-map" aria-label="Unit 04 room map">
-        <div className="unit-map" style={{ aspectRatio: roomMapAspect }}>
-          <img src={plan} alt="Unit 04 floor plan" style={roomMapImage} />
+        <div className="unit-map" style={{ aspectRatio: mapWidth / mapHeight }}>
+          <svg className="unit-map-drawing" viewBox={UNIT_04_MAP_VIEWBOX.join(' ')} role="img" aria-label="Unit 04 floor plan">
+            <image href={plan} width="1000" height="707" />
+          </svg>
           {position && <span className="unit-radar" aria-hidden="true"
-            style={mapPosition(position)}>
+            style={{ left: position.left + '%', top: position.top + '%' }}>
             <i ref={cone} style={{ '--radar-bearing': normalizeBearing(cameraHeading.current + (position.offset ?? 0)) + 'deg' }} />
           </span>}
           {rooms.map((item) => {
-            const pin = radar[item.src] ?? item;
+            const pin = radar[item.src];
             return <button key={item.src} className="unit-pin" type="button"
               aria-label={'Explore ' + item.name} aria-pressed={item === (active ?? room)}
-              style={mapPosition(pin)} onClick={() => selectRoom(item)}>
+              style={{ left: pin.left + '%', top: pin.top + '%' }} onClick={() => selectRoom(item)}>
               <span className="unit-pin-label" aria-hidden="true">{item.name}</span>
             </button>;
           })}

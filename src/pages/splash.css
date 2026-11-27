@@ -1,41 +1,202 @@
 /* First page (/) */
-.sp-page { --gold: #d9b07a; --copper: #c98a55; position: fixed; inset: 0; overflow: hidden; color: #f3e2c8;
-  background: #2a0f0c center / cover no-repeat; font-family: 'Cormorant Garamond', serif; }
+.sp-page {
+  --gold: #d9b07a;
+  --copper: #c98a55;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  color: #f3e2c8;
+  background: #2a0f0c center / cover no-repeat;
+  font-family: 'Cormorant Garamond', serif;
+}
 
-.sp-top { position: absolute; top: 20px; left: 26px; right: 26px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 3; }
-.sp-dev { height: 52px; width: auto; }
-.sp-logo { height: 30px; width: auto; }
+.sp-top {
+  position: absolute;
+  top: 20px;
+  left: 26px;
+  right: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 3;
+}
+
+.sp-dev {
+  height: 52px;
+  width: auto;
+}
+
+.sp-logo {
+  height: 30px;
+  width: auto;
+}
 
 /* rings + towers share the same 1440x670 canvas, so they stack exactly */
-.sp-stage { position: absolute; left: 50%; top: 50%; height: 100vh; aspect-ratio: 1440 / 670; max-width: 100vw;
-  transform: translate(-50%, -50%); }
-@media (max-aspect-ratio: 1440/670) { .sp-stage { width: 100vw; height: auto; } }
-.sp-stage > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-.sp-rings { opacity: 0; transform: scale(.92) rotate(-12deg); transition: opacity 1.6s ease, transform 2.4s cubic-bezier(.16,1,.3,1); }
+.sp-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 100vh;
+  aspect-ratio: 1440 / 670;
+  max-width: 100vw;
+  transform: translate(-50%, -50%);
+}
+
+@media (max-aspect-ratio: 1440/670) {
+  .sp-stage {
+    width: 100vw;
+    height: auto;
+  }
+}
+
+.sp-stage>img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sp-rings {
+  opacity: 0;
+  transform: scale(.92) rotate(-12deg);
+  transition: opacity 1.6s ease, transform 2.4s cubic-bezier(.16, 1, .3, 1);
+}
+
 /* continuous spin around the centre of the ring mark (≈723,206 on the 1440x670 canvas) */
-.sp-rings { transform-origin: 50.2% 30.7%; animation: sp-spin 40s linear infinite; }
-@keyframes sp-spin { from { rotate: 0deg; } to { rotate: 360deg; } }
-.sp-bldg { opacity: 0; transform: translateY(4%); transition: opacity 1.4s ease .5s, transform 2s cubic-bezier(.16,1,.3,1) .5s; }
-.sp-page.in .sp-rings, .sp-page.in .sp-bldg { opacity: 1; transform: none; }
+.sp-rings {
+  transform-origin: 50.2% 30.7%;
+  animation: sp-spin 40s linear infinite;
+}
 
-.sp-tag, .sp-sub { position: absolute; top: 57%; margin: 0; opacity: 0; transition: opacity 1.2s ease 1.4s; white-space: nowrap; }
-.sp-page.in .sp-tag, .sp-page.in .sp-sub { opacity: 1; }
-.sp-tag { right: 60%; font-family: 'Pinyon Script', cursive; font-size: clamp(16px, 2vw, 30px); color: var(--gold); }
-.sp-sub { left: 61.5%; font-size: clamp(10px, .85vw, 13px); color: #f3e2c8; }
+@keyframes sp-spin {
+  from {
+    rotate: 0deg;
+  }
 
-.sp-line { position: absolute; left: 0; right: 0; bottom: 32px; height: 1px; background: linear-gradient(90deg, rgba(201,138,85,.2), var(--copper), rgba(201,138,85,.2)); }
-.sp-enter { position: absolute; left: 50%; bottom: 23px; transform: translateX(-50%); z-index: 3; cursor: pointer;
-  padding: 2px 12px; border: 1px solid #e8b98a; border-radius: var(--button-radius);
-  background: linear-gradient(180deg, #f0c79a, #b8733f); color: #2a0f0c;
-  font: 400 13px 'Jost', sans-serif; letter-spacing: .22em; box-shadow: 0 0 14px rgba(240,180,120,.35); transition: filter .3s, box-shadow .3s; }
-.sp-enter:hover, .sp-enter:focus-visible { filter: brightness(1.12); box-shadow: 0 0 24px rgba(240,180,120,.6); outline: none; }
+  to {
+    rotate: 360deg;
+  }
+}
 
-.sp-powered { position: absolute; right: 26px; bottom: 10px; display: flex; flex-direction: column; font: 400 11px 'Jost', sans-serif; color: #f3e2c8; }
+.sp-bldg {
+  opacity: 0;
+  transform: translateY(4%);
+  transition: opacity 1.4s ease .5s, transform 2s cubic-bezier(.16, 1, .3, 1) .5s;
+}
+
+.sp-page.in .sp-rings,
+.sp-page.in .sp-bldg {
+  opacity: 1;
+  transform: none;
+}
+
+.sp-tag,
+.sp-sub {
+  position: absolute;
+  top: 57%;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease 1.4s;
+  white-space: nowrap;
+}
+
+.sp-page.in .sp-tag,
+.sp-page.in .sp-sub {
+  opacity: 1;
+}
+
+.sp-tag {
+  right: 60%;
+  font-family: 'Pinyon Script', cursive;
+  font-size: clamp(16px, 2vw, 30px);
+  color: var(--gold);
+}
+
+.sp-sub {
+  left: 61.5%;
+  font-family: 'Pinyon Script', cursive;
+  font-size: clamp(16px, 2vw, 30px);
+  color: #f3e2c8;
+}
+
+.sp-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201, 138, 85, .2), var(--copper), rgba(201, 138, 85, .2));
+}
+
+.sp-enter {
+  position: absolute;
+  left: 50%;
+  bottom: 23px;
+  transform: translateX(-50%);
+  z-index: 3;
+  cursor: pointer;
+  padding: 2px 12px;
+  border: 1px solid #e8b98a;
+  border-radius: var(--button-radius);
+  background: linear-gradient(180deg, #f0c79a, #b8733f);
+  color: #2a0f0c;
+  font: 400 13px 'Jost', sans-serif;
+  letter-spacing: .22em;
+  box-shadow: 0 0 14px rgba(240, 180, 120, .35);
+  transition: filter .3s, box-shadow .3s;
+}
+
+.sp-enter:hover,
+.sp-enter:focus-visible {
+  filter: brightness(1.12);
+  box-shadow: 0 0 24px rgba(240, 180, 120, .6);
+  outline: none;
+}
+
+.sp-powered {
+  position: absolute;
+  right: 26px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  font: 400 11px 'Jost', sans-serif;
+  color: #f3e2c8;
+}
 
 @media (max-width: 700px) {
-  .sp-logo { height: 22px; } .sp-dev { height: 36px; }
-  .sp-tag, .sp-sub { top: auto; bottom: 70px; left: 0; right: 0; text-align: center; }
-  .sp-sub { bottom: 52px; }
-  .sp-powered { display: none; }
+  .sp-logo {
+    height: 22px;
+  }
+
+  .sp-dev {
+    height: 36px;
+  }
+
+  .sp-tag,
+  .sp-sub {
+    top: auto;
+    bottom: 70px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+  .sp-sub {
+    bottom: 52px;
+  }
+
+  .sp-powered {
+    display: none;
+  }
 }
-@media (prefers-reduced-motion: reduce) { .sp-page * { transition: none !important; } .sp-rings { animation: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-page * {
+    transition: none !important;
+  }
+
+  .sp-rings {
+    animation: none;
+  }
+}

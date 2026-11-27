@@ -127,9 +127,14 @@ export const project = {
       mapsUrl: 'https://www.google.com/maps/place/Shree+Shashwat+Garden/data=!4m2!3m1!1s0x3be7b0679ffaaaab:0x607088e4460d6a5f',
     },
     image: A('location/metro.jpg'),
-    categories: ['Connectivity', 'Education', 'Health care', 'Leisure', 'Entertainment'],
+    categories: ['Connectivity', 'Education', 'Health care', 'Leisure', 'Entertainment', 'Past Projects'],
     // Keep brochure distances independent of map pin coordinates.
     places: [
+      { id: 'raj-one', name: 'RajOne', cat: 'Past Projects', lat: 19.2137189, lng: 72.8242067, mapsUrl: 'https://www.google.com/maps/place/RajOne/data=!4m2!3m1!1s0x3be7b70059dabb39:0x74b4e38fa1e8ca07' },
+      { id: 'raj-imperia', name: 'Raj Imperia', cat: 'Past Projects', lat: 19.1848778, lng: 72.8436353, mapsUrl: 'https://www.google.com/maps/place/Raj+Imperia/data=!4m2!3m1!1s0x3be7b7005a4d4eed:0x8b5425922db67a2a' },
+      { id: 'shashwat-2', name: 'Shree Shashwat 2.0', cat: 'Past Projects', lat: 19.2761922, lng: 72.8764528, mapsUrl: 'https://www.google.com/maps/place/Shree+Shashwat+2.0/data=!4m2!3m1!1s0x3be7b10069a98045:0x27f01339bbea681e' },
+      { id: '127-raj-homes', name: '127 Raj Homes', cat: 'Past Projects', lat: 19.2672128, lng: 72.8717314, mapsUrl: 'https://www.google.com/maps/place/127+Raj+Homes+by+Raj+Realty/data=!4m2!3m1!1s0x3be7b1001702e475:0xfe6f4a6b4abb93ec' },
+      { id: 'raj-heritage-2', name: 'Raj Heritage 2', cat: 'Past Projects', lat: 19.2921532, lng: 72.8671415, mapsUrl: 'https://www.google.com/maps/place/Raj+Heritage+2/data=!4m2!3m1!1s0x3be7b1638fba7287:0x92a165a90f69943f' },
       { id: 'kashigaon-metro', name: 'Kashigaon Metro Station', km: 0.5, cat: 'Connectivity', lat: 19.27769, lng: 72.88016 },
       { id: 'gcc', name: 'GCC Hotel & Club', km: 0.8, cat: 'Leisure', lat: 19.282983, lng: 72.8787035 },
       { id: 'siddhivinayak', name: 'Siddhivinayak Multispeciality Hospital', km: 0.9, cat: 'Health care', lat: 19.2842684, lng: 72.8773742 },
@@ -137,7 +142,6 @@ export const project = {
       { id: 'bhaktivedanta', name: 'Bhaktivedanta Hospital', km: 1.4, cat: 'Health care', lat: 19.2702023, lng: 72.8704514 },
       { id: 'iskcon', name: 'ISKCON Temple (Radha Giridhari)', km: 1.4, cat: 'Leisure', lat: 19.2691716, lng: 72.8715926 },
       { id: 'podar', name: 'Podar International School (CBSE)', km: 1.7, cat: 'Education', lat: 19.283244, lng: 72.887472 },
-      { id: 'rassaz', name: 'Rassaz Multiplex and Mall', km: 2.0, cat: 'Entertainment', lat: 19.2842219, lng: 72.8632998 },
       { id: 'wockhardt', name: 'Wockhardt Hospital', km: 2.1, cat: 'Health care', lat: 19.2842541, lng: 72.8621952 },
       { id: 'mira-road-stn', name: 'Mira Road Railway Station', km: 2.8, cat: 'Connectivity', lat: 19.2817, lng: 72.85607 },
     ],

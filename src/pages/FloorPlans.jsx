@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { centreOf } from '../menu/trefoilPortal.js';
 import { useTransition } from '../lib/transition.jsx';
-import { VIEW, PLANS, PLAN_FRAME, PLAN_CROP as C, UNITS, UNIT_04_ROOMS, JODI, VIEWS, LIGHTS, viewOf, viewSrc, unitViewOf, UNIT_VIEW_YAW, VIEW_NORTH, currentFloorLight, floorKind, ordinal } from './floorData.js';
+import { VIEW, PLANS, PLAN_FRAME, PLAN_CROP as C, UNITS, UNIT_04_ROOMS, JODI, JODI_TYPICAL_PLAN, VIEWS, LIGHTS, viewOf, viewSrc, unitViewOf, UNIT_VIEW_YAW, VIEW_NORTH, currentFloorLight, floorKind, ordinal } from './floorData.js';
 import PanoViewer from '../components/panorama/PanoViewer.jsx';
 import { loadPanorama } from '../lib/panoramaImages.js';
 import Unit04Tour from './Unit04Tour.jsx';
@@ -13,17 +13,23 @@ import './floorplans.css';
  * /floor-plans/:planId      that floor's plan (planId = tower-floor, e.g. a-12); point at a unit to see its own plan
  */
 export default function FloorPlans() {
+  const { search } = useLocation();
   const { planId } = useParams();
   const [t, n] = (planId || '').split('-');
   const tower = VIEW.towers.find((x) => x.id === t), floor = Number(n);
   if (t === 'view' && viewOf(floor)) return <FloorView key={floor} floor={floor} />;
-  return tower && floorKind(floor) ? <FloorPlan key={planId} tower={tower} floor={floor} /> : <FloorPicker />;
+  const kind = floorKind(floor);
+  const jodi = kind === 'typical' && new URLSearchParams(search).get('plan') === 'jodi';
+  return tower && kind ? <FloorPlan key={planId + (jodi ? '-jodi' : '')} tower={tower} floor={floor} jodi={jodi} /> : <FloorPicker />;
 }
 
 function warmFloorView(floor) {
   const view = viewOf(floor);
   if (view) loadPanorama(viewSrc(view, currentFloorLight()), 'low');
 }
+
+const unit04Plan = UNITS.find((unit) => unit.id === 'u4').plan;
+const floorViewOf = (floor) => viewOf(floor) ?? (floorKind(floor) && unitViewOf(floor));
 
 const V = VIEW;
 const slab = (k) => V.roof + V.pitch * k;                       // k-th slab line from the roof down
@@ -41,7 +47,8 @@ function FloorPicker() {
   const [tag, setTag] = useState(null);          // screen position of the label beside the tower
   const [entered, setEntered] = useState(false);
   const [probe, setProbe] = useState(null);
-  const [pin, setPin] = useState(null);          // a floor with a 360 view that was clicked: its card stays open to choose
+  const [tourFloor, setTourFloor] = useState(null);
+  const [pin, setPin] = useState(null);          // the clicked floor whose action card stays open
 
   useEffect(() => { const k = (e) => { if (e.key === 'Escape') setPin(null); }; addEventListener('keydown', k); return () => removeEventListener('keydown', k); }, []);
   useEffect(() => { const f = requestAnimationFrame(() => setEntered(true)), x = setTimeout(() => setEntered(true), 150); return () => { cancelAnimationFrame(f); clearTimeout(x); }; }, []);
@@ -101,11 +108,13 @@ function FloorPicker() {
     if (!target) return;
     const origin = { x: e.clientX, y: e.clientY };
     if (target.floor === 0) { go('/lobby/360', origin); return; }
-    if (viewOf(target.floor)) { warmFloorView(target.floor); setHot(target); setPin(target); return; }
-    if (floorKind(target.floor)) go(`/floor-plans/${target.tower.id}-${target.floor}`, origin);
+    const view = floorViewOf(target.floor);
+    if (view) { warmFloorView(view.floor); setHot(target); setPin(target); }
   }
 
   const kind = hot && floorKind(hot.floor);
+  const floorView = hot && floorViewOf(hot.floor);
+  const hasHomes = kind && PLANS[kind].units.length > 0;
   const name = hot && (hot.floor === 0 ? 'Entrance lobby' : hot.floor);
   return (
     <main className={'fp-page fp-view' + (entered ? ' in' : '') + (hot ? ' has-hot' : '')}>
@@ -136,7 +145,7 @@ function FloorPicker() {
       <header className="fp-head">
         <div className="fp-eb">Floor plans</div>
         <h1>Find your <em>floor</em></h1>
-        <p>Point at a tower to read the floor, then click to open its plan or the view from its height.</p>
+        <p>Point at a tower to find a floor, then click to choose its plan, 360 view, or apartment tour.</p>
       </header>
 
       {hot && tag && (
@@ -147,29 +156,32 @@ function FloorPicker() {
             <b>{typeof name === 'number' ? <>{ordinal(name)}<small>floor</small></> : name}</b>
             {hot.floor === 0
               ? <em>360° view <br />click to open</em>
-              : viewOf(hot.floor)
+              : floorView
               ? (pin
                 ? <nav className="fp-choose">
                     <em>View from this floor</em>
-                    <button type="button" onClick={(e) => go(`/floor-plans/view-${hot.floor}`, centreOf(e.currentTarget))}>360° view <span>→</span></button>
-                    {kind && <button type="button" onClick={(e) => go(`/floor-plans/${hot.tower.id}-${hot.floor}`, centreOf(e.currentTarget))}>Floor plan <span>→</span></button>}
+                    <button type="button" onClick={(e) => go(`/floor-plans/view-${floorView.floor}`, centreOf(e.currentTarget))}>360° view <span>→</span></button>
+                    {kind && <button type="button" onClick={(e) => go(`/floor-plans/${hot.tower.id}-${hot.floor}`, centreOf(e.currentTarget))}>{PLANS[kind].label} <span>→</span></button>}
+                    {kind === 'typical' && <button type="button" onClick={(e) => go(`/floor-plans/${hot.tower.id}-${hot.floor}?plan=jodi`, centreOf(e.currentTarget))}>{JODI_TYPICAL_PLAN.label} <span>→</span></button>}
+                    {hasHomes && <button type="button" onClick={() => setTourFloor(hot.floor)}>Apt Tour (Unit 04) <span>{'\u2192'}</span></button>}
                   </nav>
-                : <em>{(kind ? PLANS[kind].label : viewOf(hot.floor).sub) + ' · 360° view'}<br />click to choose</em>)
+                : <em>{(kind ? PLANS[kind].label : floorView.sub) + ' · 360° view' + (hasHomes ? ' · Apt Tour' : '')}<br />click to choose</em>)
               : <em>{kind ? PLANS[kind].label + ' · click to open' : 'Podium level'}</em>}
           </div>
         </div>
       )}
+      {tourFloor != null && <Unit04Tour plan={unit04Plan} floor={tourFloor} onClose={() => setTourFloor(null)} />}
       {edit && <div className="fp-probe">?edit · {probe ?? 'move over the image'}</div>}
     </main>
   );
 }
 
 /* ---------------- one floor's plan ---------------- */
-function FloorPlan({ tower, floor }) {
+function FloorPlan({ tower, floor, jodi }) {
   const { go } = useTransition();
   const { search } = useLocation();
   const edit = new URLSearchParams(search).has('edit');
-  const kind = floorKind(floor), plan = PLANS[kind];
+  const kind = floorKind(floor), plan = jodi ? JODI_TYPICAL_PLAN : PLANS[kind];
   const [hot, setHot] = useState(null);           // unit or jodi id
   const [open, setOpen] = useState(null);
   const [tourOpen, setTourOpen] = useState(false);
@@ -177,7 +189,8 @@ function FloorPlan({ tower, floor }) {
   const svg = useRef(null);
   const has = plan.units;
   const units = UNITS.filter((u) => has.includes(u.id));
-  const all = [...units, ...JODI.filter((j) => j.units.every((id) => has.includes(id)))];
+  const pairs = JODI.filter((pair) => pair.units.every((id) => has.includes(id)));
+  const all = jodi ? pairs : [...units, ...pairs];
   const sel = all.find((u) => u.id === (open ?? hot));
   const lit = sel ? (sel.units ?? [sel.id]) : [];
 
@@ -191,7 +204,7 @@ function FloorPlan({ tower, floor }) {
 
   function step(d) {
     let f = floor + d; while (f >= 0 && f <= 40 && !floorKind(f)) f += d;
-    if (floorKind(f)) go(`/floor-plans/${tower.id}-${f}`);
+    if (floorKind(f)) go('/floor-plans/' + tower.id + '-' + f + (jodi && floorKind(f) === 'typical' ? '?plan=jodi' : ''));
   }
   function trace(e) {
     if (!edit) return;
@@ -212,7 +225,15 @@ function FloorPlan({ tower, floor }) {
             <button type="button" aria-label="Floor below" onClick={() => step(-1)}>▼</button>
           </div>
         </div>
-        <div className="fp-kind">{plan.label}</div>
+        <div className="fp-kind">
+          {plan.label}
+          {kind === 'typical' && (
+            <button type="button" className="fp-back fp-plan-switch"
+              onClick={(e) => go('/floor-plans/' + tower.id + '-' + floor + (jodi ? '' : '?plan=jodi'), centreOf(e.currentTarget))}>
+              {jodi ? PLANS.typical.label : JODI_TYPICAL_PLAN.label}
+            </button>
+          )}
+        </div>
 
         {has.length > 0 && <>
           <div className="fp-sub">Homes on this floor</div>
@@ -241,10 +262,13 @@ function FloorPlan({ tower, floor }) {
                 <mask id="fp-unit-hole"><rect x={C.x} y={C.y} width={C.w} height={C.h} fill="#fff" />{lit.map((id) => <polygon key={id} points={plan.shapes[id]} fill="#000" />)}</mask>
                 <rect className="fp-dim" x={C.x} y={C.y} width={C.w} height={C.h} mask="url(#fp-unit-hole)" />
               </>}
-              {units.map((u) => (
-                <polygon key={u.id} points={plan.shapes[u.id]} className={'fp-unit' + (lit.includes(u.id) ? ' on' : '')}
-                  onPointerEnter={() => setHot(u.id)} onClick={() => setOpen(u.id)} />
-              ))}
+              {units.map((u) => {
+                const id = jodi ? pairs.find((pair) => pair.units.includes(u.id)).id : u.id;
+                return (
+                  <polygon key={u.id} points={plan.shapes[u.id]} className={'fp-unit' + (lit.includes(u.id) ? ' on' : '')}
+                    onPointerEnter={() => setHot(id)} onClick={() => setOpen(id)} />
+                );
+              })}
             </svg>
           )}
         </div>
@@ -258,7 +282,7 @@ function FloorPlan({ tower, floor }) {
             <div className="fp-eb">{sel.sub ?? 'Residence'}</div>
             <b>{sel.label}</b>
             <img src={sel.plan} alt="" />
-            <span>Click to open</span>
+            <span>Plan, 360 View, and Apt Tour</span>
           </>}
         </div>
       )}
@@ -268,21 +292,19 @@ function FloorPlan({ tower, floor }) {
           <figure onClick={(e) => e.stopPropagation()}>
             <img src={sel.plan} alt={`${sel.label} plan`} />
             <figcaption>{tower.name} · {ordinal(floor)} floor · {sel.label}</figcaption>
-            {sel.id === 'u4' && (
-              <div className="fp-unit-actions">
-                <button type="button" className="fp-unit-360" onPointerEnter={() => warmFloorView(unitViewOf(floor).floor)}
-                  onClick={(e) => go(`/floor-plans/view-${unitViewOf(floor).floor}?look=u4&from=${tower.id}-${floor}`, centreOf(e.currentTarget))}>360 View</button>
-                <button type="button" className="fp-flat-tour-launch"
-                  onPointerEnter={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
-                  onFocus={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
-                  onClick={() => setTourOpen(true)}>Flat Tour</button>
-              </div>
-            )}
+            <div className="fp-unit-actions">
+              <button type="button" className="fp-unit-360" onPointerEnter={() => warmFloorView(unitViewOf(floor).floor)}
+                onClick={(e) => go(`/floor-plans/view-${unitViewOf(floor).floor}?look=${sel.units?.[0] ?? sel.id}&from=${tower.id}-${floor}${jodi ? '&plan=jodi' : ''}`, centreOf(e.currentTarget))}>360 View</button>
+              <button type="button" className="fp-flat-tour-launch"
+                onPointerEnter={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
+                onFocus={() => loadPanorama(UNIT_04_ROOMS[0].src, 'low')}
+                onClick={() => setTourOpen(true)}>{sel.id === 'u4' ? 'Apt Tour' : 'Apt Tour (Unit 04 sample)'}</button>
+            </div>
             <button type="button" className="fp-x" aria-label="Close" onClick={() => setOpen(null)}>✕</button>
           </figure>
         </div>
       )}
-      {tourOpen && open === 'u4' && sel && <Unit04Tour plan={sel.plan} floor={floor} startOutside={tourOpen === 'outside'} onClose={() => setTourOpen(false)} />}
+      {tourOpen && <Unit04Tour plan={unit04Plan} floor={floor} onClose={() => setTourOpen(false)} />}
     </main>
   );
 }
@@ -303,7 +325,7 @@ function FloorView({ floor }) {
   const [pick, setPick] = useState(first ?? 'u4');                 // the home chosen on the plan
   const [aim, setAim] = useState(first ? UNIT_VIEW_YAW[first] : 0); // pano yaw to turn to
   const cone = useRef(null);
-  const back = from ? `/floor-plans/${from}` : '/floor-plans';
+  const back = from ? '/floor-plans/' + from + (q.get('plan') === 'jodi' ? '?plan=jodi' : '') : '/floor-plans';
   const pickLabel = UNITS.find((u) => u.id === pick).label.replace('Unit', 'Apt');
   function lookFrom() { const y = UNIT_VIEW_YAW[pick]; setAim((a) => (a === y ? y + 0.001 : y)); }
   function radar(heading, fov) {

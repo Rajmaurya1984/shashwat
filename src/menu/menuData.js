@@ -30,14 +30,13 @@ export const menuData = {
   caption: { where: 'Explore', line: 'Point at a section to switch on its lights.' },
 
   sections: [
-    { id: 'home',     path: '/',          label: 'Home',           where: 'The whole address',        line: 'Two towers above Mira Road, made to last.',            preview: A('aerial.jpg'),      rects: [[...TA, 205, 1075], [...TB, 198, 1075], [...PODIUM, 1070, 1200]] },
-    { id: 'legacy',    path: '/legacy',     label: 'The Legacy',     where: 'Life at height',           line: 'Luxury is not what you own. It is how you live.',      preview: A('family.jpg'),      rects: [[...TA, 330, 560], [...TB, 325, 560]] },
+    { id: 'legacy',    path: '/legacy',     label: 'The Legacy',     where: 'Life at height',           line: 'Luxury is not what you own. It is how you live.',      preview: '/assets/legacy/1.jpg',      rects: [[...TA, 330, 560], [...TB, 325, 560]] },
     { id: 'location', path: '/location',    label: 'Location',       where: 'Street level · Mira Road', line: 'Kashigaon Metro 0.5 km. DMart 1.3 km. Station 2.8 km.', preview: A('metro.jpg'),     rects: [[0, 1067, 1200, 1333]] },
     // { id: 'address',  path: '/address',     label: 'The Address',    where: 'Tower A · Tower B',        line: 'Homes that stand tall. Families that stand together.', preview: A('towers.jpg'),     rects: [[...TA, 205, 1075], [...TB, 198, 1075]] },
-    { id: 'lobby',    path: '/lobby/360',       label: 'Entrance Lobby',              line: 'Arrive, and feel the day fall away.',                  preview: A('lobby.jpg'),       rects: [[...PODIUM, 1112, 1198]] },
+    { id: 'lobby',    path: '/lobby/360',       label: 'Entrance Lobby',              line: 'Arrive, and feel the day fall away.',                  preview: '/assets/lobby/lobby.jpg', rects: [[...PODIUM, 1112, 1198]] },
     { id: 'edeck',    path: '/amenities',   label: 'The E-Deck',     where: 'Podium level',             line: 'Pool, gym, yoga: a world above the world.',            preview: A('podium.jpg'),      rects: [[...PODIUM, 1060, 1112]] },
-    { id: 'homes',    path: '/residences',  label: 'Residences',     where: 'Every floor',              line: 'Light, air and room to gather, in every home.',        preview: A('living.jpg'),      rects: [[...TA, 560, 1060], [...TB, 560, 1060]] },
-    { id: 'plans',    path: '/floor-plans', label: 'Floor Plans',    where: 'Find your floor',          line: 'Choose a tower, a floor, then a home.',                preview: A('towers.jpg'),      rects: [[...TA, 380, 900], [...TB, 375, 900]] },
+    { id: 'homes',    path: '/residences',  label: 'Residences',     where: 'Every floor',              line: 'Light, air and room to gather, in every home.',        preview: '/assets/residences/living.jpg',      rects: [[...TA, 560, 1060], [...TB, 560, 1060]] },
+    { id: 'plans',    path: '/floor-plans', label: 'Floor Plans',    where: 'Find your floor',          line: 'Choose a tower, a floor, then a home.',                preview: '/assets/plans/Front%20Twilight%20View.jpg', rects: [[...TA, 380, 900], [...TB, 375, 900]] },
     // { id: 'glow',     path: '/golden-hour', label: 'Golden Hour',    where: 'The crown',                line: 'When the sky turns gold, home glows brighter.',        preview: A('towers-pool.jpg'), rects: [[...TA, 198, 330], [...TB, 192, 325]] },
     // { id: 'contact',  path: '/contact',     label: 'Your Forever',   where: 'Your home',                line: 'Your forever begins here.',                            preview: A('brochure.jpg'),    rects: [[...TA, 205, 1075], [...TB, 198, 1075]] },
   ],

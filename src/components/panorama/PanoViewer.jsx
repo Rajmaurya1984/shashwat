@@ -11,13 +11,13 @@ import './pano.css';
 const NO_PRELOAD = [];
 const easeSine = (progress) => .5 - Math.cos(Math.PI * THREE.MathUtils.clamp(progress, 0, 1)) / 2;
 
-export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = [], fallback, autoRotate = 2, onReady, onError, onPlace, onView, preload = NO_PRELOAD, sceneMotion = false }) {
+export default function PanoViewer({ src, mobileSrc, startYaw = 0, startFov = 75, hotspots = [], fallback, autoRotate = 2, onReady, onError, onPlace, onView, preload = NO_PRELOAD, sceneMotion = false }) {
   const host = useRef(null);
   const [missing, setMissing] = useState(false);
   const viewer = useRef(null);
   const ready = useRef(onReady); ready.current = onReady;
   const failed = useRef(onError); failed.current = onError;
-  const options = useRef({ startYaw, autoRotate, sceneMotion }); options.current = { startYaw, autoRotate, sceneMotion };
+  const options = useRef({ startYaw, startFov, autoRotate, sceneMotion }); options.current = { startYaw, startFov, autoRotate, sceneMotion };
   const spots = useRef(hotspots); spots.current = hotspots;
   const place = useRef(onPlace); place.current = onPlace;
   const view = useRef(onView); view.current = onView;
@@ -27,7 +27,7 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
     const renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     el.append(renderer.domElement);
-    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(options.current.startFov, 1, 0.1, 100);
     const geo = new THREE.SphereGeometry(10, 64, 40); geo.scale(-1, 1, 1);
     const mat = new THREE.MeshBasicMaterial({ color: 0x2a0d12 });
     scene.add(new THREE.Mesh(geo, mat));
@@ -110,12 +110,54 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
     };
 
     let activeYaw = options.current.startYaw;
-    let yaw = THREE.MathUtils.degToRad(activeYaw), pitch = 0, fov = 75, vy = 0, vp = 0, drag = null, idleAt = performance.now() + 2500;
+    let yaw = THREE.MathUtils.degToRad(activeYaw), pitch = 0, fov = camera.fov, vy = 0, vp = 0, drag = null, idleAt = performance.now() + 2500;
     const dom = renderer.domElement; dom.style.cursor = 'grab'; dom.style.touchAction = 'none';
-    const down = (e) => { drag = { x: e.clientX, y: e.clientY }; dom.setPointerCapture(e.pointerId); dom.style.cursor = 'grabbing'; };
-    const move = (e) => { if (!drag) return; const k = THREE.MathUtils.degToRad(fov) / el.clientHeight; vy = (e.clientX - drag.x) * k; vp = (e.clientY - drag.y) * k; yaw += vy; pitch += vp; drag = { x: e.clientX, y: e.clientY }; idleAt = performance.now() + 3000; };
-    const up = () => { drag = null; dom.style.cursor = 'grab'; };
-    const wheel = (e) => { e.preventDefault(); fov = THREE.MathUtils.clamp(fov + e.deltaY * 0.04, 35, 95); };
+    const touches = new Map();
+    let touchStart;
+    const pinchDistance = () => {
+      const [first, second] = touches.values();
+      return Math.max(1, Math.hypot(first.x - second.x, first.y - second.y));
+    };
+    const zoom = (value) => { fov = THREE.MathUtils.clamp(value, 35, 95); };
+    const down = (e) => {
+      const point = { x: e.clientX, y: e.clientY };
+      if (e.pointerType === 'touch') touches.set(e.pointerId, point);
+      dom.setPointerCapture(e.pointerId);
+      dom.style.cursor = 'grabbing';
+      if (touches.size > 1) {
+        touchStart = undefined;
+        drag = null;
+        vy = vp = 0;
+        return;
+      }
+      drag = point;
+    };
+    const move = (e) => {
+      const point = { x: e.clientX, y: e.clientY };
+      if (touches.size > 1 && touches.has(e.pointerId)) {
+        const previous = pinchDistance();
+        touches.set(e.pointerId, point);
+        zoom(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(fov) / 2) * previous / pinchDistance())));
+        idleAt = performance.now() + 3000;
+        return;
+      }
+      if (!drag) return;
+      if (touches.has(e.pointerId)) touches.set(e.pointerId, point);
+      const k = THREE.MathUtils.degToRad(fov) / el.clientHeight;
+      vy = (point.x - drag.x) * k;
+      vp = (point.y - drag.y) * k;
+      yaw += vy;
+      pitch += vp;
+      drag = point;
+      idleAt = performance.now() + 3000;
+    };
+    const up = (e) => {
+      if (e.type === 'pointercancel') touchStart = undefined;
+      touches.delete(e.pointerId);
+      drag = touches.size === 1 ? touches.values().next().value : null;
+      if (!touches.size) dom.style.cursor = 'grab';
+    };
+    const wheel = (e) => { e.preventDefault(); zoom(fov + e.deltaY * 0.04); };
     dom.addEventListener('pointerdown', down); dom.addEventListener('pointermove', move); dom.addEventListener('pointerup', up); dom.addEventListener('pointercancel', up); dom.addEventListener('wheel', wheel, { passive: false });
 
     const pickPoint = new THREE.Vector3();
@@ -129,7 +171,6 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
         pitch: THREE.MathUtils.radToDeg(Math.asin(pickPoint.y)),
       });
     };
-    let touchStart;
     const trackTouch = (event) => {
       if (event.pointerType === 'touch' && event.isPrimary) touchStart = [event.clientX, event.clientY];
     };
@@ -159,13 +200,14 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
       }
       if (renderer.domElement.width !== Math.floor(w * renderer.getPixelRatio()) || renderer.domElement.height !== Math.floor(h * renderer.getPixelRatio())) { renderer.setSize(w, h, false); }
       camera.aspect = w / h;
-      if (!drag) { yaw += vy; pitch += vp; vy *= .92; vp *= .92; if (now > idleAt) yaw -= THREE.MathUtils.degToRad(options.current.autoRotate) * dt; }
+      if (!drag && !touches.size) { yaw += vy; pitch += vp; vy *= .92; vp *= .92; if (now > idleAt) yaw -= THREE.MathUtils.degToRad(options.current.autoRotate) * dt; }
       pitch = THREE.MathUtils.clamp(pitch, -1.4, 1.4);
       camera.fov += (fov - camera.fov) * .12; camera.updateProjectionMatrix();
       camera.rotation.set(pitch, yaw, 0, 'YXZ');
+      camera.getWorldDirection(forward);
       if (mat.map && view.current) {
-        const horizontalFov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect);
-        view.current(-THREE.MathUtils.radToDeg(yaw), THREE.MathUtils.radToDeg(horizontalFov));
+        const horizontalFov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.getEffectiveFOV()) / 2) * camera.aspect);
+        view.current(THREE.MathUtils.radToDeg(Math.atan2(forward.x, -forward.z)), THREE.MathUtils.radToDeg(horizontalFov));
       }
       if (transition) {
         const elapsed = now - transition.start;
@@ -201,7 +243,6 @@ export default function PanoViewer({ src, mobileSrc, startYaw = 0, hotspots = []
           return button;
         }));
       }
-      camera.getWorldDirection(forward);
       renderedSpots.forEach((spot, i) => {
         const azimuth = THREE.MathUtils.degToRad(spot.yaw);
         const elevation = THREE.MathUtils.degToRad(spot.pitch ?? -8);

@@ -11,7 +11,7 @@ export default function Apartment({ rooms = project.apartment.rooms, eyebrow = p
   const spots = room.hotspots.map((h) => ({ ...h, label: rooms.find((r) => r.id === h.to)?.name ?? h.to, onClick: () => setId(h.to) }));
   return (
     <div className="page" style={{ background: '#12040a' }}>
-      <PanoViewer sceneMotion src={room.pano} mobileSrc={room.pano.replace('.jpg', '-mobile.jpg')} startYaw={room.startYaw} hotspots={spots} fallback={room.fallback} />
+      <PanoViewer sceneMotion startFov={95} src={room.pano} mobileSrc={room.pano.replace('.jpg', '-mobile.jpg')} startYaw={room.startYaw} hotspots={spots} fallback={room.fallback} />
       <div className="view-shade" />
       <Link className="pano-back" to={backTo}>← Back</Link>
       {/* <div className="view-copy">

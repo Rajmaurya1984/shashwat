@@ -494,3 +494,26 @@
   stroke: currentColor;
   stroke-width: 1.4;
 }
+/* ---------- phone: a title, then every amenity as its own picture card (tap to step inside) ---------- */
+@media (max-width: 900px) {
+  .ed-page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; padding: 96px 16px calc(24px + env(safe-area-inset-bottom)); }
+  .ed-page .ed-list { position: static; margin: 0 0 14px; padding: 0; max-height: none; overflow: visible; transform: none; }
+  .ed-page .ed-list .ed-option { display: none; }
+  .ed-page .ed-eb { margin: 0; font-size: 11px; }
+  .ed-page .ed-slices { position: static; display: flex; flex-direction: column; gap: 10px; padding: 0; min-height: 0; height: auto; }
+  .ed-page .ed-slice { flex: none; height: auto; aspect-ratio: 16 / 10; border-radius: 4px; opacity: 1; animation: none; }
+  .ed-page .ed-slice img { transform: none; filter: brightness(.9); }
+  .ed-page .ed-slice::after { opacity: 1; }
+  .ed-page .ed-lbl { left: 18px; bottom: 14px; opacity: 1; transform: none; }
+  .ed-page .ed-lbl b { font-size: 22px; }
+  .ed-page .ed-lbl i { font-size: 9px; margin-top: 4px; }
+}
+
+/* ---------- phone: the amenity list becomes one row you swipe, so the 360 stays visible ---------- */
+@media (max-width: 700px) {
+  .amenity-tour-menu { left: 12px; right: 12px; width: auto; bottom: max(16px, env(safe-area-inset-bottom)); }
+  .amenity-tour-menu nav { max-height: none; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+  .amenity-tour-menu nav::-webkit-scrollbar { display: none; }
+  .amenity-tour-menu ul { display: flex; gap: 2px; white-space: nowrap; }
+  .amenity-tour-menu nav a { min-height: 36px; padding: 4px 12px; }
+}

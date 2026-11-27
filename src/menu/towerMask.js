@@ -7,8 +7,9 @@ export function towerOutlineMask(tower, floorScan) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
-/** Trefoil (the three loops of the logo) in a 100 × 100 box. */
-export const TREFOIL = [[50, 35, 19.5], [39, 54, 19.5], [61, 54, 19.5]];
+/** The Shashwat mark: four open loops turning like a pinwheel (top, right, bottom, left) in a 100 × 100 box.
+ *  [cx, cy, r, rotation] — rotation sets where each loop's cut sits, as in the logo. */
+export const TREFOIL = [[50, 32, 18, 60], [68, 50, 18, 150], [50, 68, 18, 240], [32, 50, 18, 330]];
 export function trefoilMask() {
   const c = TREFOIL.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('');
   return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="#000">${c}</g></svg>`)}")`;

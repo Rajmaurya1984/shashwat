@@ -60,7 +60,7 @@ function AmenityScene({ amenity }) {
   return (
     <div className="page" aria-label={amenity.name} style={{ background: '#12040a' }}>
       {amenity.pano
-        ? <PanoViewer sceneMotion src={amenity.pano} fallback={amenity.image ?? amenity.pano} hotspots={hotspots}
+        ? <PanoViewer sceneMotion startFov={95} src={amenity.pano} fallback={amenity.image ?? amenity.pano} hotspots={hotspots}
             autoRotate={0} onPlace={placing && target ? (position) => saveScene([...scenePointers, { to: target, ...position }]) : undefined} />
         : <div className="pan-still"><Img src={amenity.image} alt={amenity.name} /></div>}
       <div className="view-shade" />

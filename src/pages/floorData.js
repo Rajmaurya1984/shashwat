@@ -6,10 +6,9 @@
  *   roof, pitch      y of the roof line and the height of one floor (measured from the window rows)
  *   rows, topFloor   window rows above the entrance lobby, and the number of the top floor
  * Nudge these if the gold floor bands drift off the real floors (add ?edit to the page to read coordinates).
- *
- * Plans (2000 × 1414 frame for every plan image):
+* Plans (2000 × 1414 frame for every plan image):
  *   PLANS[].shapes   outline of each unit, traced from the drawing's floor colour, so it lights up exactly on hover
- *   PLANS[].units    which units exist on that plan; a jodi flat shows only when both its units exist
+ * PLANS[].units    which units exist on that plan; a jodi flat shows only when both its units exist
  */
 // encodeURI (not encodeURIComponent): Vite's static server won't find files whose ',' and '&' are escaped
 const P = (f) => '/assets/plans/' + encodeURI(f);
@@ -54,22 +53,33 @@ export const PLANS = {
       u3: '1001.0,933.2 1001.0,1200.5 1108.0,1200.5 1108.0,1191.5 1118.1,1191.5 1118.1,1239.6 1369.5,1239.6 1369.5,1185.5 1503.5,1185.5 1503.5,938.5 1371.0,938.5 1371.0,974.9 1309.5,974.9 1309.5,933.2',
     } },   // unit 05 is the refuge area on these floors
 };
+
+export const JODI_TYPICAL_PLAN = {
+  ...PLANS.typical,
+  label: 'Jodi typical floor plan',
+  src: P('4th-6th, 8th-11th, 13th-16th, 18th-21st, 23rd-26th, 28th-31st, 33rd & 34th typical floor plan ( Jodi Floor Plan ).png'),
+};
+
 export const PLAN_FRAME = { w: 2000, h: 1414 };
 // the part of the plan image that holds the drawing (the rest is empty margin); shown cropped to this box
 export const PLAN_CROP = { x: 290, y: 70, w: 1420, h: 1210 };
 
 export const unit04RoomSrc = (file) => '/assets/residences/1bhk/' + encodeURIComponent('WING A_Flat_04_' + file + '.jpg');
 
+export const UNIT_04_MAP_VIEWBOX = [120, 113.12, 750, 445.41];
+
+// Approximate camera positions as percentages of the displayed plan.
 export const UNIT_04_ROOMS = [
-  ['Living Room', 'Living Room', 72, 53],
-  ['Living Passage', 'Living Passage', 48, 37],
-  ['Kitchen', 'Kitchen', 55, 54],
-  ['Main Bedroom', 'M_Bedroom', 25, 48],
-  ["Kids' Bedroom", 'Kids Bedroom', 39, 58],
-  ['Main Bathroom', 'M Toilet', 22, 27],
-  ['Bathroom', 'Toilet', 49, 27],
-].map(([name, file, x, y]) => ({
-  name, x, y,
+  ['Living Room', 'Living Room', 80.133333, 37.142857],
+  ['Living Passage', 'Living Passage', 57.733333, 32.380952],
+  ['Kitchen', 'Kitchen', 57.866667, 44.126984],
+  ['Main Bedroom', 'M_Bedroom', 19.866667, 41.904762],
+  ["Kids' Bedroom", 'Kids Bedroom', 43.2, 55.714286],
+  ['Main Bathroom', 'M Toilet', 16.4, 21.428571],
+  ['Bathroom', 'Toilet', 48.533333, 21.111111],
+].map(([name, file, left, top]) => ({
+  name,
+  cameraPosition: { left, top },
   src: unit04RoomSrc(file),
 }));
 

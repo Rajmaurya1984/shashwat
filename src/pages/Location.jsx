@@ -47,11 +47,16 @@ export default function Location() {
   const visible = places.filter(place => category === 'All' || place.cat === category);
   const activePlace = places.find(place => place.id === selected);
   const activeRoute = locationRoutes[selected];
-  const preview = visible.find(place => place.id === previewId && place.id !== selected);
+  const preview = activePlace ?? visible.find(place => place.id === previewId);
 
   function pick(id) {
     setPreviewId(null);
-    setSelected(current => current === id ? null : id);
+    setSelected(id);
+  }
+
+  function closePreview() {
+    setPreviewId(null);
+    setSelected(null);
   }
 
   useEffect(() => {
@@ -168,15 +173,15 @@ export default function Location() {
       offset: 10,
     }).setLngLat([preview.lng, preview.lat]).setDOMContent(previewContent).addTo(map);
     return () => popup.remove();
-  }, [preview, previewContent]);
+  }, [ready, preview, previewContent]);
 
   return (
     <main className="page location-page">
       <section ref={panel} className="location-panel" aria-label="Nearby landmarks">
         <header className="location-heading">
-          <p className="eyebrow">{location.eyebrow}</p>
-          <h1>Perfectly placed. <span>Effortlessly<br />connected.</span></h1>
-          <p className="location-intro">{location.text}</p>
+          {/* <p className="eyebrow">{location.eyebrow}</p> */}
+          <h3>Perfectly placed. <span>Effortlessly<br />connected.</span></h3>
+          {/* <p className="location-intro">{location.text}</p> */}
         </header>
         <nav className="location-filters" aria-label="Landmark categories">
           {['All', ...location.categories].map(label => (
@@ -196,7 +201,7 @@ export default function Location() {
                   onFocus={() => setPreviewId(place.id)}
                   onClick={() => pick(place.id)}>
                   <span>{place.name}</span>
-                  <span className="location-distance">{place.km.toFixed(1)} km</span>
+                  {place.km != null && <span className="location-distance">{place.km.toFixed(1)} km</span>}
                 </button>
               </li>
             ))}
@@ -204,25 +209,31 @@ export default function Location() {
         </div>
         {activePlace && (
           <aside className="location-detail" aria-live="polite">
-            <button type="button" aria-label="Close landmark" onClick={() => setSelected(null)}>×</button>
+            <button type="button" aria-label="Close landmark" onClick={closePreview}>×</button>
             <div className="location-detail-heading">
               <strong>{activePlace.name}</strong>
-              <span>{activePlace.km.toFixed(1)} km</span>
+              {activePlace.km != null && <span>{activePlace.km.toFixed(1)} km</span>}
             </div>
-            <dl className="location-travel" aria-label="Estimated travel times">
-              <div>
-                <dt>Drive</dt>
-                <dd>{activeRoute ? Math.max(1, Math.round(activeRoute.duration / 60)) + ' min' : '—'}</dd>
-              </div>
-              <div>
-                <dt>Metro</dt>
-                <dd>{activePlace.id === 'kashigaon-metro' ? '1 min' : '—'}</dd>
-              </div>
-              <div>
-                <dt>Walk</dt>
-                <dd>{walkMinutes[activePlace.id] ? walkMinutes[activePlace.id] + ' min' : '—'}</dd>
-              </div>
-            </dl>
+            {activePlace.mapsUrl ? (
+              <a className="location-preview-action" href={activePlace.mapsUrl} target="_blank" rel="noopener noreferrer">
+                Open in Google Maps
+              </a>
+            ) : (
+              <dl className="location-travel" aria-label="Estimated travel times">
+                <div>
+                  <dt>Drive</dt>
+                  <dd>{activeRoute ? Math.max(1, Math.round(activeRoute.duration / 60)) + ' min' : '—'}</dd>
+                </div>
+                <div>
+                  <dt>Metro</dt>
+                  <dd>{activePlace.id === 'kashigaon-metro' ? '1 min' : '—'}</dd>
+                </div>
+                <div>
+                  <dt>Walk</dt>
+                  <dd>{walkMinutes[activePlace.id] ? walkMinutes[activePlace.id] + ' min' : '—'}</dd>
+                </div>
+              </dl>
+            )}
           </aside>
         )}
       </section>
@@ -231,12 +242,18 @@ export default function Location() {
         {status && <p className="location-map-status" role="status">{status}</p>}
         {preview && createPortal(
           <aside className="location-preview" aria-label="Landmark preview"
-            onKeyDown={event => { if (event.key === 'Escape') setPreviewId(null); }}>
+            onKeyDown={event => { if (event.key === 'Escape') closePreview(); }}>
             <button type="button" className="location-preview-close" aria-label="Close landmark preview"
-              onClick={() => setPreviewId(null)}>×</button>
-            <p>{preview.cat} · {preview.km.toFixed(1)} km from Shashwat</p>
+              onClick={closePreview}>×</button>
+            <p>{preview.cat}{preview.km != null && ' · ' + preview.km.toFixed(1) + ' km from Shashwat'}</p>
             <h2>{preview.name}</h2>
-            <button type="button" className="location-preview-action" onClick={() => pick(preview.id)}>Show route →</button>
+            {preview.mapsUrl ? (
+              <a className="location-preview-action" href={preview.mapsUrl} target="_blank" rel="noopener noreferrer">
+                Open in Google Maps
+              </a>
+            ) : !activePlace && (
+              <button type="button" className="location-preview-action" onClick={() => pick(preview.id)}>Show route</button>
+            )}
           </aside>,
           previewContent
         )}
