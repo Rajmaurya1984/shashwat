@@ -28,7 +28,7 @@ export default function Splash() {
 
       <div className="sp-stage">
         <img className="sp-rings" src={project.brand.logoMark} alt="" />
-        <img className="sp-bldg" src={24 + 'Home_bldg.png'} alt="Shree Shashwat 3.0 towers, Mira Road" />
+        <img className="sp-bldg" src={A + 'Home_bldg.png'} alt="Shree Shashwat 3.0 towers, Mira Road" />
         <p className="sp-tag">Where forever finds its address</p>
         <p className="sp-sub">Luxury Residences Mira Road</p>
       </div>
